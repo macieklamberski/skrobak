@@ -1,6 +1,6 @@
 {
   "name": "skrobak",
-  "description": "Browser scraping with retriable fetch functionality and strategy cascade.",
+  "description": "Resilient web scraper with automatic retry, proxy rotation, and strategy cascade.",
   "repository": {
     "type": "git",
     "url": "https://github.com/macieklamberski/skrobak.git"
