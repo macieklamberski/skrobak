@@ -1,0 +1,207 @@
+import { type CheerioAPI, load } from 'cheerio'
+import defaults from '../defaults.json' with { type: 'json' }
+import locales from '../locales.json' with { type: 'json' }
+import type { BrowserEngine } from '../types/browser.js'
+import type { RequestOptions, ScrapeConfig, ScrapeStrategy } from '../types/index.js'
+import type { RetryConfig, RetryType } from '../types/options.js'
+import type {
+  ScrapeResult,
+  ScrapeResultBrowser,
+  ScrapeResultCustom,
+  ScrapeResultFetch,
+} from '../types/result.js'
+import { createContext, createPage, getBrowser } from './browser.js'
+import { composeFetchOptions } from './fetch.js'
+
+export const calculateRetryDelay = (
+  attempt: number,
+  baseDelay: number,
+  retryType: RetryType,
+): number => {
+  switch (retryType) {
+    case 'exponential':
+      return baseDelay * 2 ** attempt
+    case 'linear':
+      return baseDelay * (attempt + 1)
+    case 'constant':
+      return baseDelay
+    default:
+      return baseDelay * 2 ** attempt
+  }
+}
+
+export const getRandomFrom: {
+  <_T>(items: undefined): undefined
+  <_T>(items: []): undefined
+  <T>(items: Array<T>): T
+  <T>(items: Array<T> | undefined): T | undefined
+} = (items) => {
+  if (!items || items.length === 0) {
+    return
+  }
+
+  return items[Math.floor(Math.random() * items.length)]
+}
+
+export const withRetry = async <T>(fn: () => Promise<T>, retryConfig?: RetryConfig): Promise<T> => {
+  if (!retryConfig?.count) {
+    return fn()
+  }
+
+  const delay = retryConfig.delay ?? defaults.retry.delay
+  const type = retryConfig.type ?? (defaults.retry.type as RetryType)
+
+  let lastError: unknown
+
+  for (let attempt = 0; attempt <= retryConfig.count; attempt++) {
+    try {
+      return await fn()
+    } catch (error) {
+      lastError = error
+
+      if (attempt < retryConfig.count) {
+        const retryDelay = calculateRetryDelay(attempt, delay, type)
+        await new Promise((resolve) => setTimeout(resolve, retryDelay))
+      }
+    }
+  }
+
+  throw lastError
+}
+
+const executeFetchRequest = async <TCustomResponse>(
+  url: string,
+  config: ScrapeConfig<TCustomResponse>,
+  options: RequestOptions,
+): Promise<ScrapeResultFetch> => {
+  const headers = new Headers(options.headers)
+  const signal = options.timeout ? AbortSignal.timeout(options.timeout) : undefined
+
+  if (options.userAgent) {
+    headers.set('User-Agent', options.userAgent)
+  }
+
+  const fetchOptions = composeFetchOptions(headers, signal, options.proxy)
+  const response = await fetch(url, fetchOptions)
+
+  if (!response) {
+    throw new Error(locales.noResponseReceived)
+  }
+
+  if (config.options?.validateResponse) {
+    if (!config.options.validateResponse({ mechanism: 'fetch', response })) {
+      throw new Error(locales.responseValidationFailed)
+    }
+  }
+
+  const html = await response.clone().text()
+  let cached$: CheerioAPI | null = null
+
+  return {
+    mechanism: 'fetch',
+    response,
+    get $() {
+      if (!cached$) {
+        cached$ = load(html)
+      }
+      return cached$
+    },
+  }
+}
+
+const executeBrowserRequest = async <TCustomResponse>(
+  url: string,
+  config: ScrapeConfig<TCustomResponse>,
+  options: RequestOptions,
+): Promise<ScrapeResultBrowser> => {
+  const browserConfig = config.browser ?? {}
+
+  const engine = browserConfig.engine ?? (defaults.browser.engine as BrowserEngine)
+  const browser = await getBrowser(engine)
+  const context = await createContext(browser, options)
+
+  try {
+    const page = await createPage(context, browserConfig, options)
+    const response = await page.goto(url, {
+      waitUntil: browserConfig.waitUntil,
+      timeout: options.timeout,
+    })
+
+    if (!response) {
+      throw new Error(locales.noResponseReceived)
+    }
+
+    if (config.options?.validateResponse) {
+      if (!config.options.validateResponse({ mechanism: 'browser', response })) {
+        throw new Error(locales.responseValidationFailed)
+      }
+    }
+
+    return {
+      mechanism: 'browser',
+      page,
+      response,
+      cleanup: async () => await context.close(),
+    }
+  } catch (error) {
+    await context.close()
+    throw error
+  }
+}
+
+const executeCustomRequest = async <TCustomResponse>(
+  url: string,
+  config: ScrapeConfig<TCustomResponse>,
+  options: RequestOptions,
+): Promise<ScrapeResultCustom<TCustomResponse>> => {
+  if (!config.fetch?.fn) {
+    throw new Error(locales.customFetchNotProvided)
+  }
+
+  const response = await config.fetch.fn(url, options)
+
+  if (!response) {
+    throw new Error(locales.noResponseReceived)
+  }
+
+  if (config.options?.validateResponse) {
+    if (!config.options.validateResponse({ mechanism: 'custom', response })) {
+      throw new Error(locales.responseValidationFailed)
+    }
+  }
+
+  return { mechanism: 'custom', response }
+}
+
+const executeRequest = async <TCustomResponse>(
+  url: string,
+  config: ScrapeConfig<TCustomResponse>,
+  strategy: ScrapeStrategy,
+  options: RequestOptions,
+): Promise<ScrapeResult<TCustomResponse>> => {
+  if (strategy.mechanism === 'fetch') {
+    return await executeFetchRequest(url, config, options)
+  }
+
+  if (strategy.mechanism === 'browser') {
+    return await executeBrowserRequest(url, config, options)
+  }
+
+  return await executeCustomRequest(url, config, options)
+}
+
+export const executeStrategy = async <TCustomResponse>(
+  url: string,
+  config: ScrapeConfig<TCustomResponse>,
+  strategy: ScrapeStrategy,
+): Promise<ScrapeResult<TCustomResponse>> => {
+  const options: RequestOptions = {
+    proxy: strategy.useProxy ? getRandomFrom(config.options?.proxies) : undefined,
+    userAgent: getRandomFrom(config.options?.userAgents),
+    viewport: getRandomFrom(config.options?.viewports),
+    headers: config.options?.headers,
+    timeout: config.options?.timeout,
+  }
+
+  return withRetry(() => executeRequest(url, config, strategy, options), config.options?.retries)
+}

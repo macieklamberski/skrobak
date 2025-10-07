@@ -1,0 +1,9 @@
+{
+  "retry": {
+    "delay": 5000,
+    "type": "exponential"
+  },
+  "browser": {
+    "engine": "chromium"
+  }
+}
