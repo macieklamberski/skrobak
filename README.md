@@ -4,27 +4,35 @@
 [![npm version](https://img.shields.io/npm/v/skrobak.svg)](https://www.npmjs.com/package/skrobak)
 [![license](https://img.shields.io/npm/l/skrobak.svg)](https://github.com/macieklamberski/skrobak/blob/main/LICENSE)
 
-Resilient web scraping with automatic retry, proxy rotation, and strategy cascade. Supports fetch, Playwright browsers, and custom mechanisms.
-
-## Installation
-
-```bash
-bun add skrobak
-```
+Resilient web scraper with automatic retry, proxy rotation, and strategy cascade. Supports fetch, Playwright browsers, and custom fetch implementations.
 
 ## Quick Start
+
+### Installation
+
+```bash
+npm install skrobak
+```
+
+### Usage
 
 ```typescript
 import { scrape } from 'skrobak'
 
-// Simple fetch with Cheerio
 const result = await scrape('https://example.com', {
   strategies: [{ mechanism: 'fetch' }]
 })
 
+// When response is HTML, use Cheerio for parsing
 if (result.mechanism === 'fetch') {
   const title = result.$('title').text()
   console.log(title)
+}
+
+// When response is JSON, use .json() to retrieve data
+if (result.mechanism === 'fetch') {
+  const data = await result.json()
+  console.log(data)
 }
 ```
 
@@ -37,17 +45,19 @@ Skrobak tries strategies in order until one succeeds. If a strategy fails, it au
 ```typescript
 const result = await scrape('https://example.com', {
   strategies: [
-    { mechanism: 'fetch' },           // Try simple fetch first
-    { mechanism: 'browser' },          // Fallback to browser if fetch fails
+    { mechanism: 'fetch' },    // Try simple fetch first
+    { mechanism: 'browser' },  // Fallback to browser if fetch fails
   ]
 })
 ```
 
 ### Mechanisms
 
-**fetch** - Fast HTTP requests with Cheerio for HTML parsing
-**browser** - Full browser rendering with Playwright (chromium/firefox/webkit)
-**custom** - Your own fetch implementation
+| Mechanism | Description |
+|-----------|-------------|
+| `fetch` | Fast HTTP requests with lazy-loaded Cheerio for HTML parsing |
+| `browser` | Full browser rendering with Playwright (chromium/firefox/webkit) |
+| `custom` | Your own fetch implementation |
 
 ## API Reference
 
@@ -56,116 +66,324 @@ const result = await scrape('https://example.com', {
 Main scraping function with automatic retry and strategy cascade.
 
 ```typescript
-scrape<TCustomResponse = unknown>(
-  url: string,
-  config: ScrapeConfig<TCustomResponse>
-): Promise<ScrapeResult<TCustomResponse>>
+scrape(url: string, config: ScrapeConfig): Promise<ScrapeResult>
 ```
 
-### Configuration Options
+#### Parameters
 
-#### ScrapeConfig
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to scrape |
+| `config` | [`ScrapeConfig`](#scrapeconfig) | Configuration object |
+
+#### Returns
+
+`Promise<ScrapeResult>` - Result object with mechanism-specific properties. See [Return Types](#return-types).
+
+#### Complete Configuration Example
 
 ```typescript
-{
-  strategies: Array<ScrapeStrategy>  // Required: List of strategies to try
-  options?: ScrapeOptions            // Optional: Global options
-  browser?: BrowserConfig            // Optional: Browser-specific config
-  fetch?: FetchConfig                // Optional: Custom fetch function
+const result = await scrape('https://example.com', {
+  // Strategy cascade - tries in order until one succeeds
+  strategies: [
+    { mechanism: 'fetch', useProxy: true },
+    { mechanism: 'fetch', useProxy: false },
+    { mechanism: 'browser' }
+  ],
+
+  // Global options applied to all strategies
+  options: {
+    timeout: 30000,
+    retries: {
+      count: 3,
+      delay: 2000,
+      type: 'exponential'
+    },
+    proxies: [
+      'http://proxy1.example.com:8080',
+      'http://proxy2.example.com:8080'
+    ],
+    userAgents: [
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    ],
+    headers: {
+      'Accept-Language': 'en-US,en;q=0.9'
+    },
+    validateResponse: ({ mechanism, response }) => {
+      if (mechanism === 'fetch') return response.ok
+      if (mechanism === 'browser') return response.status() === 200
+      return true
+    }
+  },
+
+  // Browser-specific configuration
+  browser: {
+    engine: 'chromium',
+    waitUntil: 'networkidle',
+    resources: ['document', 'script', 'xhr', 'fetch']
+  },
+
+  // Custom fetch implementation
+  fetch: {
+    fn: async (url, options) => {
+      // Your custom fetch logic
+      const response = await customFetch(url, options)
+      return response
+    }
+  }
+})
+```
+
+---
+
+## Configuration Reference
+
+### ScrapeConfig
+
+Root configuration object passed to `scrape()`. Main configuration object for the scraping operation.
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `strategies` | [`ScrapeStrategy[]`](#scrapestrategy-configstrategies) | **Yes** | List of strategies to try in order |
+| `options` | [`ScrapeOptions`](#scrapeoptions-configoptions) | No | Global scraping options |
+| `browser` | [`BrowserConfig`](#browserconfig-configbrowser) | No | Browser-specific configuration |
+| `fetch` | [`FetchConfig`](#fetchconfig-configfetch) | No | Custom fetch function configuration |
+
+---
+
+### ScrapeStrategy (`config.strategies[]`)
+
+Individual strategy in the cascade. Skrobak tries each strategy in order until one succeeds.
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `mechanism` | `'fetch'` `'browser'` `'custom'` | - | Scraping mechanism to use |
+| `useProxy` | `boolean` | `false` | Whether to use proxy for this strategy |
+
+**Example:**
+```typescript
+strategies: [
+  { mechanism: 'fetch', useProxy: false },  // Try without proxy first (if available)
+  { mechanism: 'fetch', useProxy: true },   // Fallback with proxy
+  { mechanism: 'browser' }                  // Last resort: full browser
+]
+```
+
+---
+
+### ScrapeOptions (`config.options`)
+
+Global options applied across all strategies.
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `timeout` | `number` | - | Request timeout in milliseconds |
+| `retries` | [`RetryConfig`](#retryconfig-configoptionsretries) | `{ count: 0, delay: 5000, type: 'exponential' }` | Retry configuration |
+| `proxies` | `string[]` | - | Proxy pool (randomly selected per request) |
+| `userAgents` | `string[]` | - | User agent pool (randomly selected per request) |
+| `viewports` | [`ViewportSize[]`](#viewportsize-configoptionsviewports) | - | Viewport pool (randomly selected per request) |
+| `headers` | `object` | - | HTTP headers as key-value pairs |
+| `validateResponse` | [`ValidateResponse`](#validateresponse-configoptionsvalidateresponse) | - | Custom response validation function |
+
+**Example:**
+```typescript
+options: {
+  timeout: 30000,
+  retries: { count: 3, delay: 2000, type: 'exponential' },
+  proxies: ['http://proxy1.com:8080', 'http://proxy2.com:8080'],
+  userAgents: ['Mozilla/5.0...'],
+  headers: { 'Accept-Language': 'en-US' }
 }
 ```
 
-#### ScrapeStrategy
+---
 
-```typescript
-{
-  mechanism: 'fetch' | 'browser' | 'custom'
-  useProxy?: boolean                 // Default: false
-}
-```
+### RetryConfig (`config.options.retries`)
 
-#### ScrapeOptions
+Controls retry behavior when requests fail.
 
-```typescript
-{
-  timeout?: number                   // Request timeout in ms
-  retries?: RetryConfig              // Retry configuration
-  proxies?: Array<string>            // Proxy pool (randomly selected)
-  userAgents?: Array<string>         // User agent pool (randomly selected)
-  viewports?: Array<ViewportSize>    // Viewport pool (randomly selected)
-  headers?: Record<string, string>   // HTTP headers
-  validateResponse?: ValidateResponse // Custom validation function
-}
-```
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `count` | `number` | `0` | Number of retry attempts |
+| `delay` | `number` | `5000` | Base delay between retries in milliseconds |
+| `type` | `'exponential'` `'linear'` `'constant'` | `'exponential'` | Retry delay calculation strategy |
 
-#### RetryConfig
-
-```typescript
-{
-  count?: number                     // Number of retries (default: 0)
-  delay?: number                     // Base delay in ms (default: 5000)
-  type?: 'exponential' | 'linear' | 'constant'  // Default: 'exponential'
-}
-```
-
-**Retry Types:**
+**Retry delay calculation:**
 - `exponential`: delay × 2^attempt (1000ms → 2000ms → 4000ms)
 - `linear`: delay × (attempt + 1) (1000ms → 2000ms → 3000ms)
 - `constant`: delay (1000ms → 1000ms → 1000ms)
 
-#### BrowserConfig
-
+**Example:**
 ```typescript
-{
-  engine?: 'chromium' | 'firefox' | 'webkit'  // Default: 'chromium'
-  resources?: Array<ResourceType>    // Resource types to allow (blocks others)
-  waitUntil?: 'load' | 'domcontentloaded' | 'networkidle' | 'commit'
+retries: {
+  count: 3,
+  delay: 2000,
+  type: 'exponential'
+}
+// Results in delays: 2000ms, 4000ms, 8000ms
+```
+
+---
+
+### ViewportSize (`config.options.viewports[]`)
+
+Viewport dimensions for browser-based scraping.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `width` | `number` | Viewport width in pixels |
+| `height` | `number` | Viewport height in pixels |
+
+**Example:**
+```typescript
+viewports: [
+  { width: 1920, height: 1080 },
+  { width: 1366, height: 768 },
+  { width: 390, height: 844 }
+]
+```
+
+---
+
+### ValidateResponse (`config.options.validateResponse`)
+
+Custom validation function to verify response before accepting it.
+
+**Type:** `(context) => boolean`
+
+Function receives a context object with `mechanism` and `response` properties. Return `true` to accept the response, `false` to retry or move to the next strategy.
+
+**Example:**
+```typescript
+validateResponse: ({ mechanism, response }) => {
+  if (mechanism === 'fetch') {
+    return response.status === 200 && response.headers.get('content-type')?.includes('json')
+  }
+
+  if (mechanism === 'browser') {
+    return response.status() === 200
+  }
+
+  return true
 }
 ```
 
-**ResourceType:** `'document' | 'stylesheet' | 'image' | 'media' | 'font' | 'script' | 'texttrack' | 'xhr' | 'fetch' | 'eventsource' | 'websocket' | 'manifest' | 'other'`
+---
 
-#### ValidateResponse
+### BrowserConfig (`config.browser`)
 
-Custom validation function to verify response before accepting:
+Browser-specific configuration for the `browser` mechanism.
 
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `engine` | `'chromium'` `'firefox'` `'webkit'` | `'chromium'` | Browser engine to use |
+| `resources` | [`ResourceType[]`](#resourcetype-configbrowserresources) | - (allows all) | Allowed resource types (blocks all others) |
+| `waitUntil` | `'load'` `'domcontentloaded'` `'networkidle'` `'commit'` | - | When to consider navigation successful |
+
+**Example:**
 ```typescript
-(context:
-  | { mechanism: 'fetch'; response: Response }
-  | { mechanism: 'browser'; response: PlaywrightResponse }
-  | { mechanism: 'custom'; response: TCustomResponse }
-) => boolean
-```
-
-### Return Types
-
-#### ScrapeResultFetch
-
-```typescript
-{
-  mechanism: 'fetch'
-  response: Response                 // Standard fetch Response
-  $: CheerioAPI                      // Lazy-loaded Cheerio instance
+browser: {
+  engine: 'chromium',
+  waitUntil: 'networkidle',
+  resources: ['document', 'script', 'xhr', 'fetch']
 }
 ```
 
-#### ScrapeResultBrowser
+---
 
+### ResourceType (`config.browser.resources[]`)
+
+Types of resources that can be loaded by the browser. When specified, all other resource types are blocked.
+
+**Type:** Playwright's `ResourceType` (string)
+
+**Common values:** `'document'` `'stylesheet'` `'image'` `'script'` `'xhr'` `'fetch'`
+
+See [Playwright's ResourceType](https://playwright.dev/docs/api/class-request#request-resource-type) for all available options.
+
+**Example:**
 ```typescript
-{
-  mechanism: 'browser'
-  response: PlaywrightResponse       // Playwright Response
-  page: Page                         // Playwright Page instance
-  cleanup: () => Promise<void>       // Call to close browser context
+// Only allow essential resources, block images/CSS for faster loading
+resources: ['document', 'script', 'xhr', 'fetch']
+```
+
+---
+
+### FetchConfig (`config.fetch`)
+
+Configuration for custom fetch implementation when using `mechanism: 'custom'`.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `fn` | `(url, options) => Promise<Response>` | Custom fetch function |
+
+**Example:** See [Custom Fetch Function](#custom-fetch-function) example.
+
+---
+
+## Return Types
+
+The result of `scrape()` depends on which mechanism succeeded. Use the `mechanism` property to determine the type.
+
+### ScrapeResultFetch
+
+**When:** `mechanism: 'fetch'` strategy succeeds
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `mechanism` | `'fetch'` | Indicates fetch mechanism was used |
+| `response` | `Response` | Standard fetch Response object |
+| `$` | `CheerioAPI` | Lazy-loaded Cheerio instance for HTML parsing |
+
+**Example:**
+```typescript
+if (result.mechanism === 'fetch') {
+  const title = result.$('title').text()
+  const links = result.$('a').map((_, element) => result.$(element).attr('href')).get()
 }
 ```
 
-#### ScrapeResultCustom
+---
 
+### ScrapeResultBrowser
+
+**When:** `mechanism: 'browser'` strategy succeeds
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `mechanism` | `'browser'` | Indicates browser mechanism was used |
+| `response` | `PlaywrightResponse` | Playwright Response object |
+| `page` | `Page` | Playwright Page instance for interaction |
+| `cleanup` | `() => Promise<void>` | Function to close browser context (must be called) |
+
+**Example:**
 ```typescript
-{
-  mechanism: 'custom'
-  response: TCustomResponse          // Your custom response type
+if (result.mechanism === 'browser') {
+  await result.page.screenshot({ path: 'screenshot.png' })
+
+  const text = await result.page.textContent('h1')
+
+  // Important: cleanup resources after use to avoid memory leaks
+  await result.cleanup()
+}
+```
+
+---
+
+### ScrapeResultCustom
+
+**When:** `mechanism: 'custom'` strategy succeeds
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `mechanism` | `'custom'` | Indicates custom mechanism was used |
+| `response` | `TCustomResponse` | Your custom response type |
+
+**Example:**
+```typescript
+if (result.mechanism === 'custom') {
+  // Your custom response type
+  console.log(result.response)
 }
 ```
 
@@ -199,7 +417,8 @@ const result = await scrape('https://example.com', {
 
 if (result.mechanism === 'browser') {
   await result.page.screenshot({ path: 'screenshot.png' })
-  await result.cleanup()  // Important: clean up browser context
+  // Important: cleanup resources after use to avoid memory leaks
+  await result.cleanup()
 }
 ```
 
@@ -244,7 +463,8 @@ const result = await scrape('https://example.com', {
 const result = await scrape('https://example.com', {
   strategies: [{ mechanism: 'browser' }],
   browser: {
-    resources: ['document', 'script', 'xhr', 'fetch']  // Only allow these
+    // Only allow these
+    resources: ['document', 'script', 'xhr', 'fetch']
   }
 })
 
@@ -264,6 +484,7 @@ const result = await scrape('https://api.example.com/data', {
       if (mechanism === 'fetch') {
         return response.status === 200 && response.headers.get('content-type')?.includes('json')
       }
+
       return true
     },
     retries: { count: 3, delay: 1000 }
@@ -276,9 +497,7 @@ const result = await scrape('https://api.example.com/data', {
 ```typescript
 import { ofetch } from 'ofetch'
 
-type CustomResponse = { data: string; headers: Record<string, string> }
-
-const result = await scrape<CustomResponse>('https://example.com', {
+const result = await scrape('https://example.com', {
   strategies: [{ mechanism: 'custom' }],
   fetch: {
     fn: async (url, options) => {
@@ -286,7 +505,8 @@ const result = await scrape<CustomResponse>('https://example.com', {
         headers: options.headers,
         timeout: options.timeout
       })
-      return { data: response, headers: {} }
+
+      return { data: response }
     }
   }
 })
@@ -301,9 +521,9 @@ if (result.mechanism === 'custom') {
 ```typescript
 const result = await scrape('https://example.com', {
   strategies: [
-    { mechanism: 'fetch', useProxy: true },    // Try with proxy first
-    { mechanism: 'fetch', useProxy: false },   // Fallback to no proxy
-    { mechanism: 'browser' }                    // Last resort: full browser
+    { mechanism: 'fetch', useProxy: true },   // Try with proxy first
+    { mechanism: 'fetch', useProxy: false },  // Fallback to no proxy
+    { mechanism: 'browser' }                  // Last resort: full browser
   ],
   options: {
     proxies: ['http://proxy.example.com:8080'],
@@ -341,9 +561,11 @@ const result = await scrape('https://example.com/products', {
       if (mechanism === 'fetch') {
         return response.ok
       }
+
       if (mechanism === 'browser') {
         return response.status() === 200
       }
+
       return true
     }
   },
@@ -355,48 +577,26 @@ const result = await scrape('https://example.com/products', {
 })
 
 if (result.mechanism === 'fetch') {
-  const products = result.$('.product').map((_, el) => ({
-    title: result.$(el).find('.title').text(),
-    price: result.$(el).find('.price').text()
+  const products = result.$('.product').map((_, element) => ({
+    title: result.$(element).find('.title').text(),
+    price: result.$(element).find('.price').text()
   })).get()
-} else if (result.mechanism === 'browser') {
+}
+
+if (result.mechanism === 'browser') {
   const products = await result.page.$$eval('.product', (elements) =>
-    elements.map(el => ({
-      title: el.querySelector('.title')?.textContent,
-      price: el.querySelector('.price')?.textContent
+    elements.map((element) => ({
+      title: element.querySelector('.title')?.textContent,
+      price: element.querySelector('.price')?.textContent
     }))
   )
+
+  // Important: cleanup resources after use to avoid memory leaks
   await result.cleanup()
 }
 ```
 
-## Utilities
-
-### closeAllBrowsers()
-
-Closes all cached browser instances. Useful for cleanup in tests or when shutting down:
-
-```typescript
-import { closeAllBrowsers } from 'skrobak'
-
-await closeAllBrowsers()
-```
-
-## TypeScript
-
-Full TypeScript support with detailed types for all configuration options and return values.
-
-```typescript
-import type {
-  ScrapeConfig,
-  ScrapeStrategy,
-  ScrapeOptions,
-  ScrapeResult,
-  BrowserConfig,
-  RetryConfig
-} from 'skrobak'
-```
-
 ## License
 
-MIT © Maciej Lamberski
+Licensed under the MIT license.<br/>
+Copyright 2025 Maciej Lamberski
