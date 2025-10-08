@@ -69,7 +69,7 @@ export const withRetry = async <T>(fn: () => Promise<T>, retryConfig?: RetryConf
   throw lastError
 }
 
-const executeFetchRequest = async <TCustomResponse>(
+const executeFetchRequest = async <TCustomResponse = unknown>(
   url: string,
   config: ScrapeConfig<TCustomResponse>,
   options: RequestOptions,
@@ -109,7 +109,7 @@ const executeFetchRequest = async <TCustomResponse>(
   }
 }
 
-const executeBrowserRequest = async <TCustomResponse>(
+const executeBrowserRequest = async <TCustomResponse = unknown>(
   url: string,
   config: ScrapeConfig<TCustomResponse>,
   options: RequestOptions,
@@ -149,7 +149,7 @@ const executeBrowserRequest = async <TCustomResponse>(
   }
 }
 
-const executeCustomRequest = async <TCustomResponse>(
+export const executeCustomRequest = async <TCustomResponse = unknown>(
   url: string,
   config: ScrapeConfig<TCustomResponse>,
   options: RequestOptions,
@@ -173,7 +173,7 @@ const executeCustomRequest = async <TCustomResponse>(
   return { mechanism: 'custom', response }
 }
 
-const executeRequest = async <TCustomResponse>(
+const executeRequest = async <TCustomResponse = unknown>(
   url: string,
   config: ScrapeConfig<TCustomResponse>,
   strategy: ScrapeStrategy,
@@ -190,7 +190,7 @@ const executeRequest = async <TCustomResponse>(
   return await executeCustomRequest(url, config, options)
 }
 
-export const executeStrategy = async <TCustomResponse>(
+export const executeStrategy = async <TCustomResponse = unknown>(
   url: string,
   config: ScrapeConfig<TCustomResponse>,
   strategy: ScrapeStrategy,

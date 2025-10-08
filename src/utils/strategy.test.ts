@@ -1,5 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test'
-import { calculateRetryDelay, getRandomFrom, withRetry } from './strategy.js'
+import type { RequestOptions, ScrapeConfig } from '../types/index.js'
+import type { ValidateResponseContext } from '../types/validate.js'
+import { calculateRetryDelay, executeCustomRequest, getRandomFrom, withRetry } from './strategy.js'
 
 describe('calculateRetryDelay', () => {
   describe('exponential backoff', () => {
@@ -284,24 +286,183 @@ describe('executeBrowserRequest', () => {
 
 describe('executeCustomRequest', () => {
   describe('custom fetch function', () => {
-    // TODO: should throw error when custom fetch not provided
-    // TODO: should execute custom fetch function
-    // TODO: should pass url to custom fetch
-    // TODO: should pass options to custom fetch
-    // TODO: should return custom response
+    test('should throw error when custom fetch not provided', async () => {
+      const config: ScrapeConfig = {}
+      const options: RequestOptions = {}
+
+      const resultFn = () => executeCustomRequest('https://example.com', config, options)
+
+      expect(resultFn()).rejects.toThrow('Custom fetch function not provided')
+    })
+
+    test('should execute custom fetch function', async () => {
+      const mockFn = mock(async () => ({ data: 'test' }))
+      const config: ScrapeConfig = { custom: { fn: mockFn } }
+      const options: RequestOptions = {}
+
+      await executeCustomRequest('https://example.com', config, options)
+
+      expect(mockFn).toHaveBeenCalledTimes(1)
+    })
+
+    test('should pass url to custom fetch', async () => {
+      let capturedUrl: string | undefined
+      const config: ScrapeConfig = {
+        custom: {
+          fn: async (url) => {
+            capturedUrl = url
+            return { data: 'test' }
+          },
+        },
+      }
+      const options: RequestOptions = {}
+
+      await executeCustomRequest('https://example.com/test', config, options)
+
+      expect(capturedUrl).toBe('https://example.com/test')
+    })
+
+    test('should pass options to custom fetch', async () => {
+      let capturedOptions: RequestOptions | undefined
+      const config: ScrapeConfig = {
+        custom: {
+          fn: async (_url, options) => {
+            capturedOptions = options
+            return { data: 'test' }
+          },
+        },
+      }
+      const options: RequestOptions = {
+        headers: { 'X-Test': 'value' },
+        timeout: 5000,
+        proxy: 'http://proxy.com:8080',
+      }
+
+      await executeCustomRequest('https://example.com', config, options)
+
+      expect(capturedOptions).toEqual({
+        headers: { 'X-Test': 'value' },
+        timeout: 5000,
+        proxy: 'http://proxy.com:8080',
+      })
+    })
+
+    test('should return custom response', async () => {
+      const customResponse = { data: 'test', count: 42 }
+      const config: ScrapeConfig = {
+        custom: { fn: async () => customResponse },
+      }
+      const options: RequestOptions = {}
+
+      const result = await executeCustomRequest('https://example.com', config, options)
+
+      expect(result.mechanism).toBe('custom')
+      expect(result.response).toEqual(customResponse)
+    })
   })
 
   describe('validation', () => {
-    // TODO: should validate response when validator provided
-    // TODO: should pass mechanism and response to validator
-    // TODO: should throw error when validation fails
-    // TODO: should skip validation when validator not provided
+    test('should validate response when validator provided', async () => {
+      const mockValidator = mock(() => true)
+      const config: ScrapeConfig = {
+        custom: { fn: async () => ({ status: 'ok' }) },
+        options: { validateResponse: mockValidator },
+      }
+      const options: RequestOptions = {}
+
+      await executeCustomRequest('https://example.com', config, options)
+
+      expect(mockValidator).toHaveBeenCalledTimes(1)
+    })
+
+    test('should pass mechanism and response to validator', async () => {
+      let capturedContext: ValidateResponseContext | undefined
+      const customResponse = { status: 'ok' }
+      const config: ScrapeConfig = {
+        custom: { fn: async () => customResponse },
+        options: {
+          validateResponse: (context) => {
+            capturedContext = context
+            return true
+          },
+        },
+      }
+      const options: RequestOptions = {}
+
+      await executeCustomRequest('https://example.com', config, options)
+
+      expect(capturedContext?.mechanism).toBe('custom')
+      expect(capturedContext?.response).toEqual(customResponse)
+    })
+
+    test('should throw error when validation fails', async () => {
+      const config: ScrapeConfig = {
+        custom: { fn: async () => ({ status: 'error' }) },
+        options: {
+          validateResponse: () => false,
+        },
+      }
+      const options: RequestOptions = {}
+
+      const resultFn = () => executeCustomRequest('https://example.com', config, options)
+
+      expect(resultFn()).rejects.toThrow('Response validation failed')
+    })
+
+    test('should skip validation when validator not provided', async () => {
+      const config: ScrapeConfig = {
+        custom: { fn: async () => ({ data: 'test' }) },
+      }
+      const options: RequestOptions = {}
+
+      const result = await executeCustomRequest('https://example.com', config, options)
+
+      expect(result.mechanism).toBe('custom')
+      expect(result.response).toEqual({ data: 'test' })
+    })
   })
 
   describe('error handling', () => {
-    // TODO: should throw error when response is null
-    // TODO: should propagate custom fetch errors
-    // TODO: should handle validation errors
+    test('should throw error when response is null', async () => {
+      const config: ScrapeConfig = {
+        custom: { fn: async () => null },
+      }
+      const options: RequestOptions = {}
+      const resultFn = () => executeCustomRequest('https://example.com', config, options)
+
+      expect(resultFn()).rejects.toThrow('No response received')
+    })
+
+    test('should propagate custom fetch errors', async () => {
+      const config: ScrapeConfig = {
+        custom: {
+          fn: async () => {
+            throw new Error('Custom fetch failed')
+          },
+        },
+      }
+      const options: RequestOptions = {}
+
+      const resultFn = () => executeCustomRequest('https://example.com', config, options)
+
+      expect(resultFn()).rejects.toThrow('Custom fetch failed')
+    })
+
+    test('should handle validation errors', async () => {
+      const config: ScrapeConfig = {
+        custom: { fn: async () => ({ data: 'test' }) },
+        options: {
+          validateResponse: () => {
+            throw new Error('Validation error')
+          },
+        },
+      }
+      const options: RequestOptions = {}
+
+      const resultFn = () => executeCustomRequest('https://example.com', config, options)
+
+      expect(resultFn()).rejects.toThrow('Validation error')
+    })
   })
 })
 

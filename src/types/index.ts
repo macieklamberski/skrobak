@@ -10,12 +10,12 @@ export type RequestOptions = {
   timeout?: number
 }
 
-export type CustomFetchFn<TCustomResponse> = (
+export type CustomFetchFn<TCustomResponse = unknown> = (
   url: string,
   options: RequestOptions,
 ) => Promise<TCustomResponse>
 
-export type CustomConfig<TCustomResponse> = {
+export type CustomConfig<TCustomResponse = unknown> = {
   fn: CustomFetchFn<TCustomResponse>
 }
 
@@ -26,7 +26,7 @@ export type ScrapeStrategy = {
   useProxy?: boolean
 }
 
-export type ScrapeConfig<TCustomResponse> = {
+export type ScrapeConfig<TCustomResponse = unknown> = {
   options?: ScrapeOptions<TCustomResponse>
   browser?: BrowserConfig
   custom?: CustomConfig<TCustomResponse>

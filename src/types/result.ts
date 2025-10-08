@@ -14,12 +14,12 @@ export type ScrapeResultBrowser = {
   cleanup: () => Promise<void>
 }
 
-export type ScrapeResultCustom<TCustomResponse> = {
+export type ScrapeResultCustom<TCustomResponse = unknown> = {
   mechanism: 'custom'
   response: TCustomResponse
 }
 
-export type ScrapeResult<TCustomResponse> =
+export type ScrapeResult<TCustomResponse = unknown> =
   | ScrapeResultFetch
   | ScrapeResultBrowser
   | ScrapeResultCustom<TCustomResponse>
