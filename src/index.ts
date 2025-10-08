@@ -42,6 +42,8 @@ export const scrape = async <TCustomResponse = unknown>(
           strategies,
           totalAttempts: strategies.length,
         })
+
+        throw error
       }
     }
   }
