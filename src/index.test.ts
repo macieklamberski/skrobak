@@ -382,6 +382,19 @@ describe('scrape', () => {
 
       // TODO: should preserve error from last failed strategy
     })
+
+    describe('hooks', () => {
+      // TODO: should call onStrategyFailed hook when strategy fails
+      // TODO: should pass correct context to onStrategyFailed (error, strategy, strategyIndex, totalStrategies)
+      // TODO: should call onStrategyFailed for each failed strategy
+      // TODO: should not call onStrategyFailed when strategy succeeds
+      // TODO: should call onAllStrategiesFailed hook when all strategies fail
+      // TODO: should pass correct context to onAllStrategiesFailed (lastError, strategies, totalAttempts)
+      // TODO: should not call onAllStrategiesFailed when any strategy succeeds
+      // TODO: should call both onStrategyFailed and onAllStrategiesFailed for last failed strategy
+      // TODO: should handle hooks throwing errors gracefully
+      // TODO: should not call hooks when not configured
+    })
   })
 
   describe('custom validation', () => {

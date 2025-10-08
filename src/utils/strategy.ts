@@ -2,6 +2,7 @@ import { type CheerioAPI, load } from 'cheerio'
 import defaults from '../defaults.json' with { type: 'json' }
 import locales from '../locales.json' with { type: 'json' }
 import type { BrowserEngine } from '../types/browser.js'
+import type { ScrapeHooks } from '../types/hooks.js'
 import type { RequestOptions, ScrapeConfig, ScrapeStrategy } from '../types/index.js'
 import type { RetryConfig, RetryType } from '../types/options.js'
 import type {
@@ -43,7 +44,11 @@ export const getRandomFrom: {
   return items[Math.floor(Math.random() * items.length)]
 }
 
-export const withRetry = async <T>(fn: () => Promise<T>, retryConfig?: RetryConfig): Promise<T> => {
+export const withRetry = async <T>(
+  fn: () => Promise<T>,
+  retryConfig?: RetryConfig,
+  hooks?: ScrapeHooks,
+): Promise<T> => {
   if (!retryConfig?.count) {
     return fn()
   }
@@ -61,10 +66,25 @@ export const withRetry = async <T>(fn: () => Promise<T>, retryConfig?: RetryConf
 
       if (attempt < retryConfig.count) {
         const retryDelay = calculateRetryDelay(attempt, delay, type)
+
+        hooks?.onRetryAttempt?.({
+          error,
+          attempt: attempt + 1,
+          maxAttempts: retryConfig.count + 1,
+          nextRetryDelay: retryDelay,
+          retryConfig,
+        })
+
         await new Promise((resolve) => setTimeout(resolve, retryDelay))
       }
     }
   }
+
+  hooks?.onRetryExhausted?.({
+    error: lastError,
+    totalAttempts: retryConfig.count + 1,
+    retryConfig,
+  })
 
   throw lastError
 }
@@ -203,5 +223,9 @@ export const executeStrategy = async <TCustomResponse = unknown>(
     timeout: config.options?.timeout,
   }
 
-  return withRetry(() => executeRequest(url, config, strategy, options), config.options?.retries)
+  return withRetry(
+    () => executeRequest(url, config, strategy, options),
+    config.options?.retries,
+    config.hooks,
+  )
 }

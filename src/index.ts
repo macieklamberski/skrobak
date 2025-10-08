@@ -4,6 +4,7 @@ import type { ScrapeResult } from './types/result.js'
 import { executeStrategy } from './utils/strategy.js'
 
 export * from './types/browser.js'
+export * from './types/hooks.js'
 export * from './types/index.js'
 export * from './types/options.js'
 export * from './types/result.js'
@@ -28,8 +29,19 @@ export const scrape = async <TCustomResponse = unknown>(
 
       return result
     } catch (error) {
+      config.hooks?.onStrategyFailed?.({
+        error,
+        strategy,
+        strategyIndex: index,
+        totalStrategies: strategies.length,
+      })
+
       if (index === strategies.length - 1) {
-        throw error
+        config.hooks?.onAllStrategiesFailed?.({
+          lastError: error,
+          strategies,
+          totalAttempts: strategies.length,
+        })
       }
     }
   }

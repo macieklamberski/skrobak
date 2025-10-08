@@ -186,6 +186,19 @@ describe('withRetry', () => {
     })
   })
 
+  describe('hooks', () => {
+    // TODO: should call onRetryAttempt hook when retry occurs
+    // TODO: should pass correct context to onRetryAttempt (error, attempt, maxAttempts, nextRetryDelay, retryConfig)
+    // TODO: should not call onRetryAttempt on first attempt
+    // TODO: should call onRetryAttempt multiple times for multiple retries
+    // TODO: should call onRetryExhausted hook when all retries fail
+    // TODO: should pass correct context to onRetryExhausted (error, totalAttempts, retryConfig)
+    // TODO: should not call onRetryExhausted when retry succeeds
+    // TODO: should not call onRetryExhausted when no retries configured
+    // TODO: should handle hooks throwing errors gracefully
+    // TODO: should not call hooks when retries not configured
+  })
+
   describe('delay calculation', () => {
     // TODO: Is it neeed? We have detailed unit tests for calculateRetryDelay
   })
@@ -520,6 +533,11 @@ describe('executeStrategy', () => {
     // TODO: should delegate to withRetry function
     // TODO: should pass retry config from options
     // TODO: should execute request without retry when not configured
+  })
+
+  describe('hooks delegation', () => {
+    // TODO: should pass hooks to withRetry function
+    // TODO: should not pass hooks when not configured
   })
 
   describe('mechanism routing', () => {

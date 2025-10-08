@@ -160,6 +160,7 @@ Root configuration object passed to `scrape()`. Main configuration object for th
 | `options` | [`ScrapeOptions`](#scrapeoptions-configoptions) | No | Global scraping options |
 | `browser` | [`BrowserConfig`](#browserconfig-configbrowser) | No | Browser-specific configuration |
 | `custom` | [`CustomConfig`](#customconfig-configcustom) | No | Custom fetch function configuration |
+| `hooks` | [`ScrapeHooks`](#scrapehooks-confighooks) | No | Event hooks for monitoring and logging |
 
 ### ScrapeStrategy (`config.strategies`)
 
@@ -323,6 +324,92 @@ Configuration for custom fetch implementation when using `mechanism: 'custom'`.
   - `timeout?` (number): Request timeout in milliseconds
 
 **Example:** See [Custom Fetch Function](#custom-fetch-function) example.
+
+### ScrapeHooks (`config.hooks`)
+
+Event hooks for monitoring scraping progress, logging, metrics, or debugging. All hooks are optional.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `onRetryAttempt` | `(context) => void` | Called when a retry attempt fails |
+| `onRetryExhausted` | `(context) => void` | Called when all retry attempts are exhausted |
+| `onStrategyFailed` | `(context) => void` | Called when a strategy fails |
+| `onAllStrategiesFailed` | `(context) => void` | Called when all strategies fail |
+
+#### onRetryAttempt
+
+**Context object:**
+```typescript
+{
+  error: unknown              // The error that occurred
+  attempt: number             // Current attempt number (1-indexed)
+  maxAttempts: number         // Total number of attempts
+  nextRetryDelay: number      // Delay before next retry in ms
+  retryConfig: RetryConfig    // Retry configuration
+}
+```
+
+#### onRetryExhausted
+
+**Context object:**
+```typescript
+{
+  error: unknown              // The final error
+  totalAttempts: number       // Total number of attempts made
+  retryConfig: RetryConfig    // Retry configuration
+}
+```
+
+#### onStrategyFailed
+
+**Context object:**
+```typescript
+{
+  error: unknown              // The error that occurred
+  strategy: ScrapeStrategy    // The strategy that failed
+  strategyIndex: number       // Index of failed strategy (0-indexed)
+  totalStrategies: number     // Total number of strategies
+}
+```
+
+#### onAllStrategiesFailed
+
+**Context object:**
+```typescript
+{
+  lastError: unknown          // The last error encountered
+  strategies: Array<ScrapeStrategy>  // All strategies that were tried
+  totalAttempts: number       // Number of strategies attempted
+}
+```
+
+**Example:**
+```typescript
+const result = await scrape('https://example.com', {
+  strategies: [
+    { mechanism: 'fetch', useProxy: true },
+    { mechanism: 'browser' }
+  ],
+  options: {
+    retries: { count: 3, delay: 1000, type: 'exponential' }
+  },
+  hooks: {
+    onRetryAttempt: ({ attempt, maxAttempts, nextRetryDelay, error }) => {
+      console.log(`Retry ${attempt}/${maxAttempts} failed, waiting ${nextRetryDelay}ms`)
+      console.error('Error:', error)
+    },
+    onRetryExhausted: ({ totalAttempts }) => {
+      console.log(`All ${totalAttempts} retries exhausted`)
+    },
+    onStrategyFailed: ({ strategy, strategyIndex, totalStrategies }) => {
+      console.log(`Strategy ${strategyIndex + 1}/${totalStrategies} (${strategy.mechanism}) failed`)
+    },
+    onAllStrategiesFailed: ({ strategies }) => {
+      console.error(`All ${strategies.length} strategies failed`)
+    }
+  }
+})
+```
 
 ## Return Types
 
@@ -512,6 +599,28 @@ const result = await scrape('https://api.example.com/data', {
       return true
     },
     retries: { count: 3, delay: 1000 }
+  }
+})
+```
+
+### Monitoring with Hooks
+
+```typescript
+const result = await scrape('https://example.com', {
+  strategies: [
+    { mechanism: 'fetch', useProxy: true },
+    { mechanism: 'browser' }
+  ],
+  options: {
+    retries: { count: 3, delay: 1000, type: 'exponential' }
+  },
+  hooks: {
+    onRetryAttempt: ({ attempt, maxAttempts, nextRetryDelay }) => {
+      console.log(`Retry ${attempt}/${maxAttempts}, waiting ${nextRetryDelay}ms`)
+    },
+    onStrategyFailed: ({ strategy, strategyIndex, totalStrategies }) => {
+      console.log(`Strategy ${strategyIndex + 1}/${totalStrategies} failed: ${strategy.mechanism}`)
+    }
   }
 })
 ```

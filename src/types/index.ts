@@ -1,5 +1,6 @@
 import type { ViewportSize } from 'playwright'
 import type { BrowserConfig } from './browser.js'
+import type { ScrapeHooks } from './hooks.js'
 import type { ScrapeOptions } from './options.js'
 
 export type RequestOptions = {
@@ -31,4 +32,5 @@ export type ScrapeConfig<TCustomResponse = unknown> = {
   browser?: BrowserConfig
   custom?: CustomConfig<TCustomResponse>
   strategies?: Array<ScrapeStrategy>
+  hooks?: ScrapeHooks
 }
