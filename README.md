@@ -144,6 +144,22 @@ const result = await scrape('https://example.com', {
       const response = await customFetch(url, options)
       return response
     }
+  },
+
+  // Event hooks for monitoring and logging
+  hooks: {
+    onRetryAttempt: ({ attempt, maxAttempts, nextRetryDelay }) => {
+      console.log(`Retry ${attempt}/${maxAttempts}, waiting ${nextRetryDelay}ms`)
+    },
+    onRetryExhausted: ({ totalAttempts }) => {
+      console.log(`All ${totalAttempts} retries exhausted`)
+    },
+    onStrategyFailed: ({ strategy, strategyIndex, totalStrategies }) => {
+      console.log(`Strategy ${strategyIndex + 1}/${totalStrategies} (${strategy.mechanism}) failed`)
+    },
+    onAllStrategiesFailed: ({ strategies }) => {
+      console.error(`All ${strategies.length} strategies failed`)
+    }
   }
 })
 ```
