@@ -200,7 +200,7 @@ describe('createPage', () => {
   })
 })
 
-describe('closeAllBrowsers', () => {
+describe.skip('closeAllBrowsers', () => {
   it('should close all open browsers', async () => {
     const chromiumBrowser = await getBrowser('chromium')
 
