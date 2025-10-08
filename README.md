@@ -18,7 +18,7 @@ Skrobak solves these problems by:
 - **Optimizing for cost and efficiency** - Start with the most efficient methods first (simple fetch), gradually falling back to resource-intensive options (headless browser) or paid solutions (proxies) only when necessary
 - **Eliminating trial and error** - Automatically test different browser engines and proxy combinations to find which ones work, without manual intervention
 
-The strategy cascade system handles all of this, automatically trying different approaches in order of efficiency until one succeeds.
+Define your own list of strategies to try in order, and Skrobak automatically cascades through them until one succeeds.
 
 ## Quick Start
 
