@@ -12,10 +12,13 @@ When scraping multiple websites, you face unpredictable challenges:
 
 - **Unknown accessibility requirements** - You never know whether a page will be accessible through a simple HTTP fetch or if it blocks requests and requires a headless browser
 - **IP-based restrictions** - Sites might block your server's IP address, requiring proxy rotation as a fallback
-- **Cost and efficiency optimization** - Start with the most efficient methods first (simple fetch), gradually falling back to resource-intensive options (headless browser) or paid solutions (proxies) only when necessary
-- **Trial and error elimination** - Test different browser engines and proxy combinations automatically to find which ones work, without manual intervention
 
-Skrobak handles all of this through its strategy cascade system, automatically trying different approaches in order of efficiency until one succeeds.
+Skrobak solves these problems by:
+
+- **Optimizing for cost and efficiency** - Start with the most efficient methods first (simple fetch), gradually falling back to resource-intensive options (headless browser) or paid solutions (proxies) only when necessary
+- **Eliminating trial and error** - Automatically test different browser engines and proxy combinations to find which ones work, without manual intervention
+
+The strategy cascade system handles all of this, automatically trying different approaches in order of efficiency until one succeeds.
 
 ## Quick Start
 
