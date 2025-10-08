@@ -409,9 +409,7 @@ describe('scrape', () => {
         expect(result.mechanism).toBe('fetch')
       })
 
-      // TODO: Browser strategy validation requires integration tests with a real server
-      // MSW only intercepts Node.js fetch requests, not Playwright browser requests.
-      test.skip('should validate response with custom function where second strategy is valid', async () => {
+      test('should validate response with custom function where second strategy is valid', async () => {
         server.use(
           http.get('https://example.com/validated', () => {
             return HttpResponse.json({ data: 'test' }, { status: 200 })
@@ -421,17 +419,22 @@ describe('scrape', () => {
         const result = await scrape('https://example.com/validated', {
           options: {
             validateResponse: (context) => {
-              if (context.mechanism === 'browser') {
-                return context.response.status() === 200
+              if (context.mechanism === 'custom') {
+                return context.response.success === true
               }
 
               return false
             },
           },
-          strategies: [{ mechanism: 'fetch' }, { mechanism: 'browser' }],
+          strategies: [{ mechanism: 'fetch' }, { mechanism: 'custom' }],
+          custom: {
+            fn: async () => {
+              return { success: true, data: 'custom data' }
+            },
+          },
         })
 
-        expect(result.mechanism).toBe('browser')
+        expect(result.mechanism).toBe('custom')
       })
     })
 

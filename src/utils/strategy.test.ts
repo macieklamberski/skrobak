@@ -289,7 +289,6 @@ describe('executeCustomRequest', () => {
     test('should throw error when custom fetch not provided', async () => {
       const config: ScrapeConfig = {}
       const options: RequestOptions = {}
-
       const resultFn = () => executeCustomRequest('https://example.com', config, options)
 
       expect(resultFn()).rejects.toThrow('Custom fetch function not provided')
@@ -353,11 +352,43 @@ describe('executeCustomRequest', () => {
         custom: { fn: async () => customResponse },
       }
       const options: RequestOptions = {}
-
       const result = await executeCustomRequest('https://example.com', config, options)
 
       expect(result.mechanism).toBe('custom')
       expect(result.response).toEqual(customResponse)
+    })
+
+    test('should accept false as valid response', async () => {
+      const config: ScrapeConfig = {
+        custom: { fn: async () => false },
+      }
+      const options: RequestOptions = {}
+      const result = await executeCustomRequest('https://example.com', config, options)
+
+      expect(result.mechanism).toBe('custom')
+      expect(result.response).toBe(false)
+    })
+
+    test('should accept 0 as valid response', async () => {
+      const config: ScrapeConfig = {
+        custom: { fn: async () => 0 },
+      }
+      const options: RequestOptions = {}
+      const result = await executeCustomRequest('https://example.com', config, options)
+
+      expect(result.mechanism).toBe('custom')
+      expect(result.response).toBe(0)
+    })
+
+    test('should accept empty string as valid response', async () => {
+      const config: ScrapeConfig = {
+        custom: { fn: async () => '' },
+      }
+      const options: RequestOptions = {}
+      const result = await executeCustomRequest('https://example.com', config, options)
+
+      expect(result.mechanism).toBe('custom')
+      expect(result.response).toBe('')
     })
   })
 
@@ -403,7 +434,6 @@ describe('executeCustomRequest', () => {
         },
       }
       const options: RequestOptions = {}
-
       const resultFn = () => executeCustomRequest('https://example.com', config, options)
 
       expect(resultFn()).rejects.toThrow('Response validation failed')
@@ -414,7 +444,6 @@ describe('executeCustomRequest', () => {
         custom: { fn: async () => ({ data: 'test' }) },
       }
       const options: RequestOptions = {}
-
       const result = await executeCustomRequest('https://example.com', config, options)
 
       expect(result.mechanism).toBe('custom')
@@ -430,7 +459,17 @@ describe('executeCustomRequest', () => {
       const options: RequestOptions = {}
       const resultFn = () => executeCustomRequest('https://example.com', config, options)
 
-      expect(resultFn()).rejects.toThrow('No response received')
+      expect(resultFn()).rejects.toThrow('No response received from custom fetch function')
+    })
+
+    test('should throw error when response is undefined', async () => {
+      const config: ScrapeConfig = {
+        custom: { fn: async () => undefined },
+      }
+      const options: RequestOptions = {}
+      const resultFn = () => executeCustomRequest('https://example.com', config, options)
+
+      expect(resultFn()).rejects.toThrow('No response received from custom fetch function')
     })
 
     test('should propagate custom fetch errors', async () => {
@@ -442,7 +481,6 @@ describe('executeCustomRequest', () => {
         },
       }
       const options: RequestOptions = {}
-
       const resultFn = () => executeCustomRequest('https://example.com', config, options)
 
       expect(resultFn()).rejects.toThrow('Custom fetch failed')
@@ -458,7 +496,6 @@ describe('executeCustomRequest', () => {
         },
       }
       const options: RequestOptions = {}
-
       const resultFn = () => executeCustomRequest('https://example.com', config, options)
 
       expect(resultFn()).rejects.toThrow('Validation error')

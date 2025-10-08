@@ -1,5 +1,6 @@
 {
   "customFetchNotProvided": "Custom fetch function not provided",
+  "customFetchNoResponse": "No response received from custom fetch function",
   "fetchNotImplemented": "Default fetch mechanism not implemented yet",
   "noResponseReceived": "No response received from navigation",
   "responseValidationFailed": "Response validation failed",

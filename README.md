@@ -299,6 +299,15 @@ Configuration for custom fetch implementation when using `mechanism: 'custom'`.
 |----------|------|-------------|
 | `fn` | `(url, options) => Promise<TCustomResponse>` | Custom fetch function |
 
+**Function parameters:**
+- `url` (string): The URL to fetch
+- `options` (object): Request options composed from global config
+  - `proxy?` (string): Proxy URL (when `useProxy: true`)
+  - `userAgent?` (string): User agent string
+  - `viewport?` (object): Viewport dimensions with `width` and `height`
+  - `headers?` (object): HTTP headers as key-value pairs
+  - `timeout?` (number): Request timeout in milliseconds
+
 **Example:** See [Custom Fetch Function](#custom-fetch-function) example.
 
 ## Return Types
@@ -395,6 +404,31 @@ if (result.mechanism === 'browser') {
   await result.page.screenshot({ path: 'screenshot.png' })
   // Important: cleanup resources after use to avoid memory leaks
   await result.cleanup()
+}
+```
+
+### Basic Custom Fetch
+
+```typescript
+import axios from 'axios'
+
+const result = await scrape('https://api.example.com/data', {
+  strategies: [{ mechanism: 'custom' }],
+  custom: {
+    fn: async (url, options) => {
+      // Use any HTTP client: axios, got, ofetch, etc.
+      const response = await axios.get(url, {
+        headers: options.headers,
+        timeout: options.timeout,
+        proxy: options.proxy ? { host: options.proxy } : undefined
+      })
+      return response.data
+    }
+  }
+})
+
+if (result.mechanism === 'custom') {
+  console.log(result.response) // Your custom response data
 }
 ```
 

@@ -160,8 +160,8 @@ export const executeCustomRequest = async <TCustomResponse = unknown>(
 
   const response = await config.custom.fn(url, options)
 
-  if (!response) {
-    throw new Error(locales.noResponseReceived)
+  if (response === null || response === undefined) {
+    throw new Error(locales.customFetchNoResponse)
   }
 
   if (config.options?.validateResponse) {
