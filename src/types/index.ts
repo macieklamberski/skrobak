@@ -27,7 +27,7 @@ export type ScrapeStrategy = {
 }
 
 export type ScrapeConfig<TCustomResponse> = {
-  options?: ScrapeOptions
+  options?: ScrapeOptions<TCustomResponse>
   browser?: BrowserConfig
   custom?: CustomConfig<TCustomResponse>
   strategies?: Array<ScrapeStrategy>

@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'bun:test'
 import { HttpResponse, http } from 'msw'
 import { setupServer } from 'msw/node'
-import { scrape } from './index.js'
+import { type RequestOptions, scrape } from './index.js'
 
 describe('scrape', () => {
   const server = setupServer(
@@ -181,13 +181,149 @@ describe('scrape', () => {
   })
 
   describe('custom mechanism', () => {
-    // TODO: should execute custom fetch function (integration test)
-    // TODO: should pass url and options to custom fetch function
-    // TODO: should return custom response type (integration test)
-    // TODO: should throw error when custom fetch function not provided
-    // TODO: should validate custom response (integration test)
-    // TODO: should retry custom fetch on failure (integration test)
-    // Note: Custom mechanism implementation tested in executeCustomRequest() unit tests (strategy.test.ts)
+    test('should execute custom fetch function', async () => {
+      const result = await scrape('https://example.com/custom', {
+        strategies: [{ mechanism: 'custom' }],
+        custom: {
+          fn: async (url) => {
+            return { customData: 'test', url }
+          },
+        },
+      })
+
+      expect(result.mechanism).toBe('custom')
+
+      if (result.mechanism === 'custom') {
+        expect(result.response).toEqual({
+          customData: 'test',
+          url: 'https://example.com/custom',
+        })
+      }
+    })
+
+    test('should pass url and options to custom fetch function', async () => {
+      let capturedUrl: string | undefined
+      let capturedOptions: RequestOptions | undefined
+
+      await scrape('https://example.com/options', {
+        options: {
+          headers: { 'X-Custom': 'header' },
+          timeout: 5000,
+        },
+        strategies: [{ mechanism: 'custom' }],
+        custom: {
+          fn: async (url, options) => {
+            capturedUrl = url
+            capturedOptions = options
+            return { success: true }
+          },
+        },
+      })
+
+      expect(capturedUrl).toBe('https://example.com/options')
+      expect(capturedOptions?.headers).toEqual({ 'X-Custom': 'header' })
+      expect(capturedOptions?.timeout).toBe(5000)
+    })
+
+    test('should return custom response type', async () => {
+      const result = await scrape('https://example.com/typed', {
+        strategies: [{ mechanism: 'custom' }],
+        custom: {
+          fn: async () => {
+            return { items: ['a', 'b', 'c'], count: 3 }
+          },
+        },
+      })
+
+      expect(result.mechanism).toBe('custom')
+
+      if (result.mechanism === 'custom') {
+        expect(result.response.items).toEqual(['a', 'b', 'c'])
+        expect(result.response.count).toBe(3)
+      }
+    })
+
+    test('should throw error when custom fetch function not provided', async () => {
+      const resultFn = () =>
+        scrape('https://example.com/no-fn', {
+          strategies: [{ mechanism: 'custom' }],
+        })
+
+      expect(resultFn()).rejects.toThrow('Custom fetch function not provided')
+    })
+
+    test('should validate custom response', async () => {
+      const result = await scrape('https://example.com/validated', {
+        strategies: [{ mechanism: 'custom' }],
+        options: {
+          validateResponse: (context) => {
+            if (context.mechanism === 'custom') {
+              return context.response.status === 'ok'
+            }
+
+            return true
+          },
+        },
+        custom: {
+          fn: async () => {
+            return { status: 'ok', data: 'test' }
+          },
+        },
+      })
+
+      expect(result.mechanism).toBe('custom')
+    })
+
+    test('should fail validation when custom response is invalid', async () => {
+      const resultFn = () =>
+        scrape('https://example.com/invalid', {
+          strategies: [{ mechanism: 'custom' }],
+          options: {
+            validateResponse: (context) => {
+              if (context.mechanism === 'custom') {
+                return context.response.status === 'ok'
+              }
+
+              return true
+            },
+          },
+          custom: {
+            fn: async () => {
+              return { status: 'error', data: 'test' }
+            },
+          },
+        })
+
+      expect(resultFn()).rejects.toThrow('Response validation failed')
+    })
+
+    test('should retry custom fetch on failure', async () => {
+      let callCount = 0
+
+      const result = await scrape('https://example.com/retry', {
+        options: { retries: { count: 3, delay: 0 } },
+        strategies: [{ mechanism: 'custom' }],
+        custom: {
+          fn: async () => {
+            callCount++
+
+            if (callCount < 3) {
+              throw new Error('Custom fetch failed')
+            }
+
+            return { success: true, attempt: callCount }
+          },
+        },
+      })
+
+      expect(result.mechanism).toBe('custom')
+      expect(callCount).toBe(3)
+
+      if (result.mechanism === 'custom') {
+        expect(result.response.success).toBe(true)
+        expect(result.response.attempt).toBe(3)
+      }
+    })
   })
 
   describe('strategy cascade', () => {
