@@ -124,7 +124,7 @@ const result = await scrape('https://example.com', {
   },
 
   // Custom fetch implementation
-  fetch: {
+  custom: {
     fn: async (url, options) => {
       // Your custom fetch logic
       const response = await customFetch(url, options)
@@ -133,8 +133,6 @@ const result = await scrape('https://example.com', {
   }
 })
 ```
-
----
 
 ## Configuration Reference
 
@@ -147,11 +145,9 @@ Root configuration object passed to `scrape()`. Main configuration object for th
 | `strategies` | [`ScrapeStrategy[]`](#scrapestrategy-configstrategies) | **Yes** | List of strategies to try in order |
 | `options` | [`ScrapeOptions`](#scrapeoptions-configoptions) | No | Global scraping options |
 | `browser` | [`BrowserConfig`](#browserconfig-configbrowser) | No | Browser-specific configuration |
-| `fetch` | [`FetchConfig`](#fetchconfig-configfetch) | No | Custom fetch function configuration |
+| `custom` | [`CustomConfig`](#customconfig-configcustom) | No | Custom fetch function configuration |
 
----
-
-### ScrapeStrategy (`config.strategies[]`)
+### ScrapeStrategy (`config.strategies`)
 
 Individual strategy in the cascade. Skrobak tries each strategy in order until one succeeds.
 
@@ -168,8 +164,6 @@ strategies: [
   { mechanism: 'browser' }                  // Last resort: full browser
 ]
 ```
-
----
 
 ### ScrapeOptions (`config.options`)
 
@@ -196,8 +190,6 @@ options: {
 }
 ```
 
----
-
 ### RetryConfig (`config.options.retries`)
 
 Controls retry behavior when requests fail.
@@ -209,9 +201,9 @@ Controls retry behavior when requests fail.
 | `type` | `'exponential'` `'linear'` `'constant'` | `'exponential'` | Retry delay calculation strategy |
 
 **Retry delay calculation:**
-- `exponential`: delay × 2^attempt (1000ms → 2000ms → 4000ms)
-- `linear`: delay × (attempt + 1) (1000ms → 2000ms → 3000ms)
-- `constant`: delay (1000ms → 1000ms → 1000ms)
+- `exponential`: (1000ms → 2000ms → 4000ms)
+- `linear`: (1000ms → 2000ms → 3000ms)
+- `constant`: (1000ms → 1000ms → 1000ms)
 
 **Example:**
 ```typescript
@@ -223,9 +215,7 @@ retries: {
 // Results in delays: 2000ms, 4000ms, 8000ms
 ```
 
----
-
-### ViewportSize (`config.options.viewports[]`)
+### ViewportSize (`config.options.viewports`)
 
 Viewport dimensions for browser-based scraping.
 
@@ -242,8 +232,6 @@ viewports: [
   { width: 390, height: 844 }
 ]
 ```
-
----
 
 ### ValidateResponse (`config.options.validateResponse`)
 
@@ -268,8 +256,6 @@ validateResponse: ({ mechanism, response }) => {
 }
 ```
 
----
-
 ### BrowserConfig (`config.browser`)
 
 Browser-specific configuration for the `browser` mechanism.
@@ -289,9 +275,7 @@ browser: {
 }
 ```
 
----
-
-### ResourceType (`config.browser.resources[]`)
+### ResourceType (`config.browser.resources`)
 
 Types of resources that can be loaded by the browser. When specified, all other resource types are blocked.
 
@@ -307,19 +291,15 @@ See [Playwright's ResourceType](https://playwright.dev/docs/api/class-request#re
 resources: ['document', 'script', 'xhr', 'fetch']
 ```
 
----
-
-### FetchConfig (`config.fetch`)
+### CustomConfig (`config.custom`)
 
 Configuration for custom fetch implementation when using `mechanism: 'custom'`.
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `fn` | `(url, options) => Promise<Response>` | Custom fetch function |
+| `fn` | `(url, options) => Promise<TCustomResponse>` | Custom fetch function |
 
 **Example:** See [Custom Fetch Function](#custom-fetch-function) example.
-
----
 
 ## Return Types
 
@@ -343,8 +323,6 @@ if (result.mechanism === 'fetch') {
 }
 ```
 
----
-
 ### ScrapeResultBrowser
 
 **When:** `mechanism: 'browser'` strategy succeeds
@@ -367,8 +345,6 @@ if (result.mechanism === 'browser') {
   await result.cleanup()
 }
 ```
-
----
 
 ### ScrapeResultCustom
 
@@ -499,7 +475,7 @@ import { ofetch } from 'ofetch'
 
 const result = await scrape('https://example.com', {
   strategies: [{ mechanism: 'custom' }],
-  fetch: {
+  custom: {
     fn: async (url, options) => {
       const response = await ofetch(url, {
         headers: options.headers,

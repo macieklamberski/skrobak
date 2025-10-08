@@ -15,7 +15,7 @@ export type CustomFetchFn<TCustomResponse> = (
   options: RequestOptions,
 ) => Promise<TCustomResponse>
 
-export type FetchConfig<TCustomResponse> = {
+export type CustomConfig<TCustomResponse> = {
   fn: CustomFetchFn<TCustomResponse>
 }
 
@@ -29,6 +29,6 @@ export type ScrapeStrategy = {
 export type ScrapeConfig<TCustomResponse> = {
   options?: ScrapeOptions
   browser?: BrowserConfig
-  fetch?: FetchConfig<TCustomResponse>
+  custom?: CustomConfig<TCustomResponse>
   strategies?: Array<ScrapeStrategy>
 }

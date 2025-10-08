@@ -154,11 +154,11 @@ const executeCustomRequest = async <TCustomResponse>(
   config: ScrapeConfig<TCustomResponse>,
   options: RequestOptions,
 ): Promise<ScrapeResultCustom<TCustomResponse>> => {
-  if (!config.fetch?.fn) {
+  if (!config.custom?.fn) {
     throw new Error(locales.customFetchNotProvided)
   }
 
-  const response = await config.fetch.fn(url, options)
+  const response = await config.custom.fn(url, options)
 
   if (!response) {
     throw new Error(locales.noResponseReceived)
