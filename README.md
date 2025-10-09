@@ -744,8 +744,3 @@ if (result.mechanism === 'browser') {
   await result.cleanup()
 }
 ```
-
-## License
-
-Licensed under the MIT license.<br/>
-Copyright 2025 Maciej Lamberski
