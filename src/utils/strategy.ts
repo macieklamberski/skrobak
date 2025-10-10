@@ -12,6 +12,7 @@ import type {
   ScrapeResultFetch,
 } from '../types/result.js'
 import { createContext, createPage, getBrowser } from './browser.js'
+import { sleep } from './common.js'
 import { composeFetchOptions } from './fetch.js'
 
 export const calculateRetryDelay = (
@@ -75,7 +76,7 @@ export const withRetry = async <T>(
           retryConfig,
         })
 
-        await new Promise((resolve) => setTimeout(resolve, retryDelay))
+        await sleep(retryDelay)
       }
     }
   }
