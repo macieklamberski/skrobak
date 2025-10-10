@@ -9,8 +9,10 @@ export * from './types/hooks.js'
 export * from './types/index.js'
 export * from './types/options.js'
 export * from './types/result.js'
+export * from './types/scrapeMany.js'
 export * from './types/validate.js'
 export { closeAllBrowsers } from './utils/browser.js'
+export { scrapeMany } from './utils/scrapeMany.js'
 
 export const scrape = async <TCustomResponse = unknown>(
   url: string,

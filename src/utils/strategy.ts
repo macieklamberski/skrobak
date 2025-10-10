@@ -13,8 +13,8 @@ import type {
   ScrapeResultFetch,
 } from '../types/result.js'
 import { createContext, createPage, getBrowser } from './browser.js'
-import { sleep } from './common.js'
 import { composeFetchOptions } from './fetch.js'
+import { sleep } from './sleep.js'
 
 export const calculateRetryDelay = (
   attempt: number,

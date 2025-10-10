@@ -754,3 +754,170 @@ if (result.mechanism === 'browser') {
   await result.cleanup()
 }
 ```
+
+## Bulk Scraping
+
+### scrapeMany(urls, scrapeConfig, config?)
+
+Scrape multiple URLs sequentially with automatic browser cleanup, random delays, dynamic URL discovery, and error resilience.
+
+**Perfect for:**
+- Batch scraping multiple pages
+- Web crawling with link discovery
+
+```typescript
+scrapeMany<TCustomResponse = unknown>(
+  urls: string[],
+  scrapeConfig: ScrapeConfig<TCustomResponse>,
+  scrapeManyConfig?: ScrapeManyConfig<TCustomResponse>
+): Promise<ScrapeManyResult>
+```
+
+#### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `urls` | `string[]` | Array of URLs to scrape |
+| `scrapeConfig` | [`ScrapeConfig`](#scrapeconfig) | Same config as `scrape()` - strategies, options, etc. |
+| `scrapeManyConfig` | [`ScrapeManyConfig`](#scrapemanyconfig) | Optional batch scraping configuration |
+
+#### ScrapeManyConfig
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `onSuccess` | `(context) => Promise<void>` | Called after each successful scrape |
+| `onError` | `(context) => Promise<void>` | Called after each failed scrape |
+| `delays` | `{ min: number; max: number }` | Random delay range between requests (in milliseconds) |
+
+**Success Context:**
+```typescript
+{
+  result: ScrapeResult        // Scrape result (fetch/browser/custom)
+  url: string                 // Current URL
+  index: number               // URL index (0-based)
+  addUrls: (urls) => void     // Add more URLs to queue (for crawling)
+  stats: {
+    initial: number           // Initial URL count
+    discovered: number        // URLs added via addUrls()
+    processed: number         // Completed (success + failed)
+    remaining: number         // URLs left in queue
+    succeeded: number         // Successful scrapes
+    failed: number            // Failed scrapes
+  }
+}
+```
+
+**Error Context:**
+```typescript
+{
+  error: unknown              // The error that occurred
+  url: string                 // Current URL
+  index: number               // URL index (0-based)
+  addUrls: (urls) => void     // Add more URLs to queue
+  stats: { /* same as above */ }
+}
+```
+
+#### Returns
+
+```typescript
+{
+  total: number      // Total URLs processed
+  succeeded: number  // Successful scrapes
+  failed: number     // Failed scrapes
+}
+```
+
+### Bulk Scraping Examples
+
+#### Basic Batch Scraping
+
+```typescript
+import { scrapeMany } from 'skrobak'
+
+const result = await scrapeMany(
+  [
+    'https://example.com/page1',
+    'https://example.com/page2',
+    'https://example.com/page3'
+  ],
+  {
+    strategies: [{ mechanism: 'fetch' }],
+    options: { retries: { count: 3 } }
+  },
+  {
+    delays: { min: 2000, max: 5000 },  // 2-5 second delays
+    onSuccess: async ({ result, url }) => {
+      if (result.mechanism === 'fetch') {
+        const title = result.$('title').text()
+        await saveToDatabase({ url, title })
+      }
+    }
+  }
+)
+
+console.log(`Scraped ${result.succeeded}/${result.total} pages`)
+```
+
+#### Web Crawling with Link Discovery
+
+```typescript
+const result = await scrapeMany(
+  ['https://example.com/category'],
+  { strategies: [{ mechanism: 'fetch' }] },
+  {
+    delays: { min: 1000, max: 3000 },
+    onSuccess: async ({ result, addUrls }) => {
+      if (result.mechanism === 'fetch') {
+        // Extract and save data
+        // ...
+
+        // Discover more URLs to scrape
+        const productLinks = result.$('.product a').map((_, el) => result.$(el).attr('href')).get()
+
+        addUrls(productLinks)
+      }
+    }
+  }
+)
+
+console.log(`Crawl complete: ${result.total} pages`)
+```
+
+#### Error Handling and Monitoring
+
+```typescript
+const errors: Array<{ url: string; error: unknown }> = []
+
+const result = await scrapeMany(
+  [/* … */],
+  {
+    strategies: [
+      { mechanism: 'fetch' },
+      { mechanism: 'browser' }  // Fallback to browser
+    ],
+    options: { retries: { count: 3 } }
+  },
+  {
+    delays: { min: 2000, max: 5000 },
+    onSuccess: async ({ result, url, stats }) => {
+      console.log(`✓ ${url} (${stats.succeeded}/${stats.processed})`)
+
+      if (result.mechanism === 'fetch') {
+        await processData(result.$('body').html())
+      }
+
+      if (result.mechanism === 'browser') {
+        await processData(await result.page.content())
+        // Browser cleanup happens automatically!
+      }
+    },
+    onError: async ({ error, url, stats }) => {
+      console.error(`✗ ${url} (${stats.failed} failures)`)
+      errors.push({ url, error })
+    }
+  }
+)
+
+console.log(`Completed: ${result.succeeded} succeeded, ${result.failed} failed`)
+```
