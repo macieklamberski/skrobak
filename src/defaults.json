@@ -1,7 +1,8 @@
 {
   "retry": {
     "delay": 5000,
-    "type": "exponential"
+    "type": "exponential",
+    "statusCodes": [408, 429, 500, 502, 503, 504]
   },
   "browser": {
     "engine": "chromium"

@@ -1,7 +1,13 @@
 import { describe, expect, mock, test } from 'bun:test'
+import { HttpError } from '../types/error.js'
 import type { RequestOptions, ScrapeConfig } from '../types/index.js'
 import type { ValidateResponseContext } from '../types/validate.js'
-import { calculateRetryDelay, executeCustomRequest, getRandomFrom, withRetry } from './strategy.js'
+import {
+  calculateRetryDelay,
+  executeCustomMechanism,
+  getRandomFrom,
+  withRetry,
+} from './strategy.js'
 
 describe('calculateRetryDelay', () => {
   describe('exponential backoff', () => {
@@ -223,9 +229,95 @@ describe('withRetry', () => {
       expect(resultFn()).rejects.toThrow('attempt 3')
     })
   })
+
+  describe('status code handling', () => {
+    test('should retry on HttpError with retriable status code', async () => {
+      let attempt = 0
+      const fn = mock(() => {
+        attempt++
+        if (attempt < 3) {
+          throw new HttpError('HTTP 503', 503)
+        }
+        return Promise.resolve('success')
+      })
+
+      const result = await withRetry(fn, { count: 3, delay: 1, statusCodes: [503] })
+
+      expect(result).toBe('success')
+      expect(fn).toHaveBeenCalledTimes(3)
+    })
+
+    test('should NOT retry on HttpError with non-retriable status code', async () => {
+      const fn = mock(() => {
+        throw new HttpError('HTTP 404', 404)
+      })
+
+      const resultFn = () => withRetry(fn, { count: 3, delay: 1, statusCodes: [503, 500] })
+
+      await expect(resultFn()).rejects.toThrow('HTTP 404')
+      expect(fn).toHaveBeenCalledTimes(1)
+    })
+
+    test('should use default status codes when not specified', async () => {
+      const fn = mock(() => {
+        throw new HttpError('HTTP 500', 500)
+      })
+
+      const resultFn = () => withRetry(fn, { count: 2, delay: 1 })
+
+      await expect(resultFn()).rejects.toThrow('HTTP 500')
+      // Should retry because 500 is in default retriable status codes
+      expect(fn).toHaveBeenCalledTimes(3)
+    })
+
+    test('should retry non-HttpError errors regardless of status codes', async () => {
+      const fn = mock(() => Promise.reject(new Error('Network error')))
+
+      const resultFn = () => withRetry(fn, { count: 2, delay: 1, statusCodes: [503] })
+
+      await expect(resultFn()).rejects.toThrow('Network error')
+      // Should retry even though error doesn't have status code
+      expect(fn).toHaveBeenCalledTimes(3)
+    })
+
+    test('should retry on multiple different retriable status codes', async () => {
+      let attempt = 0
+      const fn = mock(() => {
+        attempt++
+        if (attempt === 1) {
+          throw new HttpError('HTTP 503', 503)
+        }
+        if (attempt === 2) {
+          throw new HttpError('HTTP 429', 429)
+        }
+        return Promise.resolve('success')
+      })
+
+      const result = await withRetry(fn, { count: 3, delay: 1, statusCodes: [429, 503] })
+
+      expect(result).toBe('success')
+      expect(fn).toHaveBeenCalledTimes(3)
+    })
+
+    test('should stop immediately on first non-retriable status code', async () => {
+      let attempt = 0
+      const fn = mock(() => {
+        attempt++
+        if (attempt === 1) {
+          throw new HttpError('HTTP 503', 503)
+        }
+        throw new HttpError('HTTP 401', 401)
+      })
+
+      const resultFn = () => withRetry(fn, { count: 5, delay: 1, statusCodes: [503] })
+
+      await expect(resultFn()).rejects.toThrow('HTTP 401')
+      expect(fn).toHaveBeenCalledTimes(2)
+    })
+  })
 })
 
-describe('executeFetchRequest', () => {
+describe('executeFetchMechanism', () => {
   describe('request construction', () => {
     // TODO: should construct fetch request with url
     // TODO: should set headers from options
@@ -258,7 +350,7 @@ describe('executeFetchRequest', () => {
   })
 })
 
-describe('executeBrowserRequest', () => {
+describe('executeBrowserMechanism', () => {
   describe('browser initialization', () => {
     // TODO: should get browser instance
     // TODO: should use engine from config
@@ -297,12 +389,12 @@ describe('executeBrowserRequest', () => {
   })
 })
 
-describe('executeCustomRequest', () => {
+describe('executeCustomMechanism', () => {
   describe('custom fetch function', () => {
     test('should throw error when custom fetch not provided', async () => {
       const config: ScrapeConfig = {}
       const options: RequestOptions = {}
-      const resultFn = () => executeCustomRequest('https://example.com', config, options)
+      const resultFn = () => executeCustomMechanism('https://example.com', config, options)
 
       expect(resultFn()).rejects.toThrow('Custom fetch function not provided')
     })
@@ -312,7 +404,7 @@ describe('executeCustomRequest', () => {
       const config: ScrapeConfig = { custom: { fn: mockFn } }
       const options: RequestOptions = {}
 
-      await executeCustomRequest('https://example.com', config, options)
+      await executeCustomMechanism('https://example.com', config, options)
 
       expect(mockFn).toHaveBeenCalledTimes(1)
     })
@@ -329,7 +421,7 @@ describe('executeCustomRequest', () => {
       }
       const options: RequestOptions = {}
 
-      await executeCustomRequest('https://example.com/test', config, options)
+      await executeCustomMechanism('https://example.com/test', config, options)
 
       expect(capturedUrl).toBe('https://example.com/test')
     })
@@ -350,7 +442,7 @@ describe('executeCustomRequest', () => {
         proxy: 'http://proxy.com:8080',
       }
 
-      await executeCustomRequest('https://example.com', config, options)
+      await executeCustomMechanism('https://example.com', config, options)
 
       expect(capturedOptions).toEqual({
         headers: { 'X-Test': 'value' },
@@ -365,7 +457,7 @@ describe('executeCustomRequest', () => {
         custom: { fn: async () => customResponse },
       }
       const options: RequestOptions = {}
-      const result = await executeCustomRequest('https://example.com', config, options)
+      const result = await executeCustomMechanism('https://example.com', config, options)
 
       expect(result.mechanism).toBe('custom')
       expect(result.response).toEqual(customResponse)
@@ -376,7 +468,7 @@ describe('executeCustomRequest', () => {
         custom: { fn: async () => false },
       }
       const options: RequestOptions = {}
-      const result = await executeCustomRequest('https://example.com', config, options)
+      const result = await executeCustomMechanism('https://example.com', config, options)
 
       expect(result.mechanism).toBe('custom')
       expect(result.response).toBe(false)
@@ -387,7 +479,7 @@ describe('executeCustomRequest', () => {
         custom: { fn: async () => 0 },
       }
       const options: RequestOptions = {}
-      const result = await executeCustomRequest('https://example.com', config, options)
+      const result = await executeCustomMechanism('https://example.com', config, options)
 
       expect(result.mechanism).toBe('custom')
       expect(result.response).toBe(0)
@@ -398,7 +490,7 @@ describe('executeCustomRequest', () => {
         custom: { fn: async () => '' },
       }
       const options: RequestOptions = {}
-      const result = await executeCustomRequest('https://example.com', config, options)
+      const result = await executeCustomMechanism('https://example.com', config, options)
 
       expect(result.mechanism).toBe('custom')
       expect(result.response).toBe('')
@@ -414,7 +506,7 @@ describe('executeCustomRequest', () => {
       }
       const options: RequestOptions = {}
 
-      await executeCustomRequest('https://example.com', config, options)
+      await executeCustomMechanism('https://example.com', config, options)
 
       expect(mockValidator).toHaveBeenCalledTimes(1)
     })
@@ -433,7 +525,7 @@ describe('executeCustomRequest', () => {
       }
       const options: RequestOptions = {}
 
-      await executeCustomRequest('https://example.com', config, options)
+      await executeCustomMechanism('https://example.com', config, options)
 
       expect(capturedContext?.mechanism).toBe('custom')
       expect(capturedContext?.response).toEqual(customResponse)
@@ -447,7 +539,7 @@ describe('executeCustomRequest', () => {
         },
       }
       const options: RequestOptions = {}
-      const resultFn = () => executeCustomRequest('https://example.com', config, options)
+      const resultFn = () => executeCustomMechanism('https://example.com', config, options)
 
       expect(resultFn()).rejects.toThrow('Response validation failed')
     })
@@ -457,7 +549,7 @@ describe('executeCustomRequest', () => {
         custom: { fn: async () => ({ data: 'test' }) },
       }
       const options: RequestOptions = {}
-      const result = await executeCustomRequest('https://example.com', config, options)
+      const result = await executeCustomMechanism('https://example.com', config, options)
 
       expect(result.mechanism).toBe('custom')
       expect(result.response).toEqual({ data: 'test' })
@@ -470,7 +562,7 @@ describe('executeCustomRequest', () => {
         custom: { fn: async () => null },
       }
       const options: RequestOptions = {}
-      const resultFn = () => executeCustomRequest('https://example.com', config, options)
+      const resultFn = () => executeCustomMechanism('https://example.com', config, options)
 
       expect(resultFn()).rejects.toThrow('No response received from custom fetch function')
     })
@@ -480,7 +572,7 @@ describe('executeCustomRequest', () => {
         custom: { fn: async () => undefined },
       }
       const options: RequestOptions = {}
-      const resultFn = () => executeCustomRequest('https://example.com', config, options)
+      const resultFn = () => executeCustomMechanism('https://example.com', config, options)
 
       expect(resultFn()).rejects.toThrow('No response received from custom fetch function')
     })
@@ -494,7 +586,7 @@ describe('executeCustomRequest', () => {
         },
       }
       const options: RequestOptions = {}
-      const resultFn = () => executeCustomRequest('https://example.com', config, options)
+      const resultFn = () => executeCustomMechanism('https://example.com', config, options)
 
       expect(resultFn()).rejects.toThrow('Custom fetch failed')
     })
@@ -509,7 +601,7 @@ describe('executeCustomRequest', () => {
         },
       }
       const options: RequestOptions = {}
-      const resultFn = () => executeCustomRequest('https://example.com', config, options)
+      const resultFn = () => executeCustomMechanism('https://example.com', config, options)
 
       expect(resultFn()).rejects.toThrow('Validation error')
     })
@@ -541,9 +633,9 @@ describe('executeStrategy', () => {
   })
 
   describe('mechanism routing', () => {
-    // TODO: should route to executeFetchRequest for fetch mechanism
-    // TODO: should route to executeBrowserRequest for browser mechanism
-    // TODO: should route to executeCustomRequest for custom mechanism
+    // TODO: should route to executeFetchMechanism for fetch mechanism
+    // TODO: should route to executeBrowserMechanism for browser mechanism
+    // TODO: should route to executeCustomMechanism for custom mechanism
     // TODO: should throw error for unknown mechanism
   })
 })

@@ -4,6 +4,7 @@ import type { ScrapeResult } from './types/result.js'
 import { executeStrategy } from './utils/strategy.js'
 
 export * from './types/browser.js'
+export * from './types/error.js'
 export * from './types/hooks.js'
 export * from './types/index.js'
 export * from './types/options.js'

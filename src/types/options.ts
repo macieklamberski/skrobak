@@ -7,6 +7,7 @@ export type RetryConfig = {
   count?: number
   delay?: number
   type?: RetryType
+  statusCodes?: Array<number>
 }
 
 export type ScrapeOptions<TCustomResponse = unknown> = {

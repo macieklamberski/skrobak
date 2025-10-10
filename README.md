@@ -111,7 +111,8 @@ const result = await scrape('https://example.com', {
     retries: {
       count: 3,
       delay: 2000,
-      type: 'exponential'
+      type: 'exponential',
+      statusCodes: [408, 429, 500, 502, 503, 504]
     },
     proxies: [
       'http://proxy1.example.com:8080',
@@ -230,20 +231,29 @@ Controls retry behavior when requests fail.
 | `count` | `number` | `0` | Number of retry attempts |
 | `delay` | `number` | `5000` | Base delay between retries in milliseconds |
 | `type` | `'exponential'` `'linear'` `'constant'` | `'exponential'` | Retry delay calculation strategy |
+| `statusCodes` | `number[]` | `[408, 429, 500, 502, 503, 504]` | HTTP status codes that trigger retry |
 
 **Retry delay calculation:**
 - `exponential`: (1000ms → 2000ms → 4000ms)
 - `linear`: (1000ms → 2000ms → 3000ms)
 - `constant`: (1000ms → 1000ms → 1000ms)
 
+**Status code retry behavior:**
+
+Skrobak automatically retries only on specific HTTP status codes:
+
+- **Retriable status codes** (in `statusCodes` list) → Retry the same mechanism
+- **Non-retriable status codes** (NOT in list, e.g., 404, 401) → Skip to next strategy immediately
+- **Network errors** (no status code) → Always retry (temporary issues)
+
 **Example:**
 ```typescript
 retries: {
   count: 3,
   delay: 2000,
-  type: 'exponential'
+  type: 'exponential',
+  statusCodes: [429, 503]  // Only retry on rate limiting and service unavailable
 }
-// Results in delays: 2000ms, 4000ms, 8000ms
 ```
 
 ### ViewportSize (`config.options.viewports`)

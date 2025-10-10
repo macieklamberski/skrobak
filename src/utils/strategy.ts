@@ -2,6 +2,7 @@ import { type CheerioAPI, load } from 'cheerio'
 import defaults from '../defaults.json' with { type: 'json' }
 import locales from '../locales.json' with { type: 'json' }
 import type { BrowserEngine } from '../types/browser.js'
+import { HttpError } from '../types/error.js'
 import type { ScrapeHooks } from '../types/hooks.js'
 import type { RequestOptions, ScrapeConfig, ScrapeStrategy } from '../types/index.js'
 import type { RetryConfig, RetryType } from '../types/options.js'
@@ -56,6 +57,7 @@ export const withRetry = async <T>(
 
   const delay = retryConfig.delay ?? defaults.retry.delay
   const type = retryConfig.type ?? (defaults.retry.type as RetryType)
+  const retriableStatusCodes = retryConfig.statusCodes ?? defaults.retry.statusCodes
 
   let lastError: unknown
 
@@ -64,6 +66,12 @@ export const withRetry = async <T>(
       return await fn()
     } catch (error) {
       lastError = error
+
+      if (error instanceof HttpError) {
+        if (!retriableStatusCodes.includes(error.statusCode)) {
+          throw error
+        }
+      }
 
       if (attempt < retryConfig.count) {
         const retryDelay = calculateRetryDelay(attempt, delay, type)
@@ -90,7 +98,7 @@ export const withRetry = async <T>(
   throw lastError
 }
 
-const executeFetchRequest = async <TCustomResponse = unknown>(
+const executeFetchMechanism = async <TCustomResponse = unknown>(
   url: string,
   config: ScrapeConfig<TCustomResponse>,
   options: RequestOptions,
@@ -130,7 +138,7 @@ const executeFetchRequest = async <TCustomResponse = unknown>(
   }
 }
 
-const executeBrowserRequest = async <TCustomResponse = unknown>(
+const executeBrowserMechanism = async <TCustomResponse = unknown>(
   url: string,
   config: ScrapeConfig<TCustomResponse>,
   options: RequestOptions,
@@ -170,7 +178,7 @@ const executeBrowserRequest = async <TCustomResponse = unknown>(
   }
 }
 
-export const executeCustomRequest = async <TCustomResponse = unknown>(
+export const executeCustomMechanism = async <TCustomResponse = unknown>(
   url: string,
   config: ScrapeConfig<TCustomResponse>,
   options: RequestOptions,
@@ -194,21 +202,35 @@ export const executeCustomRequest = async <TCustomResponse = unknown>(
   return { mechanism: 'custom', response }
 }
 
-const executeRequest = async <TCustomResponse = unknown>(
+const executeMechanism = async <TCustomResponse = unknown>(
   url: string,
   config: ScrapeConfig<TCustomResponse>,
   strategy: ScrapeStrategy,
   options: RequestOptions,
 ): Promise<ScrapeResult<TCustomResponse>> => {
-  if (strategy.mechanism === 'fetch') {
-    return await executeFetchRequest(url, config, options)
+  let result: ScrapeResult<TCustomResponse>
+  let status: number | undefined
+
+  switch (strategy.mechanism) {
+    case 'fetch':
+      result = await executeFetchMechanism(url, config, options)
+      status = result.response.status
+      break
+    case 'browser':
+      result = await executeBrowserMechanism(url, config, options)
+      status = result.response.status()
+      break
+    case 'custom':
+      result = await executeCustomMechanism(url, config, options)
+      // TODO: Figure out how to handle status code for custom mechanism.
+      break
   }
 
-  if (strategy.mechanism === 'browser') {
-    return await executeBrowserRequest(url, config, options)
+  if (status !== undefined && (status < 200 || status >= 300)) {
+    throw new HttpError(`HTTP error ${status}`, status)
   }
 
-  return await executeCustomRequest(url, config, options)
+  return result
 }
 
 export const executeStrategy = async <TCustomResponse = unknown>(
@@ -225,7 +247,7 @@ export const executeStrategy = async <TCustomResponse = unknown>(
   }
 
   return withRetry(
-    () => executeRequest(url, config, strategy, options),
+    () => executeMechanism(url, config, strategy, options),
     config.options?.retries,
     config.hooks,
   )
