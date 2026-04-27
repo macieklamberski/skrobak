@@ -193,16 +193,45 @@ describe('withRetry', () => {
   })
 
   describe('hooks', () => {
-    // TODO: should call onRetryAttempt hook when retry occurs
-    // TODO: should pass correct context to onRetryAttempt (error, attempt, maxAttempts, nextRetryDelay, retryConfig)
-    // TODO: should not call onRetryAttempt on first attempt
-    // TODO: should call onRetryAttempt multiple times for multiple retries
-    // TODO: should call onRetryExhausted hook when all retries fail
-    // TODO: should pass correct context to onRetryExhausted (error, totalAttempts, retryConfig)
-    // TODO: should not call onRetryExhausted when retry succeeds
-    // TODO: should not call onRetryExhausted when no retries configured
-    // TODO: should handle hooks throwing errors gracefully
-    // TODO: should not call hooks when retries not configured
+    test.todo('should call onRetryAttempt hook when retry occurs', () => {
+      // Call onRetryAttempt hook when retry occurs
+    })
+
+    test.todo('should pass correct context to onRetryAttempt (error, attempt, maxAttempts, nextRetryDelay, retryConfig)', () => {
+      // Pass correct context to onRetryAttempt (error, attempt, maxAttempts, nextRetryDelay, retryConfig)
+    })
+
+    test.todo('should not call onRetryAttempt on first attempt', () => {
+      // Not call onRetryAttempt on first attempt
+    })
+
+    test.todo('should call onRetryAttempt multiple times for multiple retries', () => {
+      // Call onRetryAttempt multiple times for multiple retries
+    })
+
+    test.todo('should call onRetryExhausted hook when all retries fail', () => {
+      // Call onRetryExhausted hook when all retries fail
+    })
+
+    test.todo('should pass correct context to onRetryExhausted (error, totalAttempts, retryConfig)', () => {
+      // Pass correct context to onRetryExhausted (error, totalAttempts, retryConfig)
+    })
+
+    test.todo('should not call onRetryExhausted when retry succeeds', () => {
+      // Not call onRetryExhausted when retry succeeds
+    })
+
+    test.todo('should not call onRetryExhausted when no retries configured', () => {
+      // Not call onRetryExhausted when no retries configured
+    })
+
+    test.todo('should handle hooks throwing errors gracefully', () => {
+      // Handle hooks throwing errors gracefully
+    })
+
+    test.todo('should not call hooks when retries not configured', () => {
+      // Not call hooks when retries not configured
+    })
   })
 
   describe('delay calculation', () => {
@@ -319,73 +348,187 @@ describe('withRetry', () => {
 
 describe('executeFetchMechanism', () => {
   describe('request construction', () => {
-    // TODO: should construct fetch request with url
-    // TODO: should set headers from options
-    // TODO: should set user agent header
-    // TODO: should set abort signal for timeout
-    // TODO: should compose fetch options with proxy
-    // TODO: should not set proxy when not provided
+    test.todo('should construct fetch request with url', () => {
+      // Construct fetch request with url
+    })
+
+    test.todo('should set headers from options', () => {
+      // Set headers from options
+    })
+
+    test.todo('should set user agent header', () => {
+      // Set user agent header
+    })
+
+    test.todo('should set abort signal for timeout', () => {
+      // Set abort signal for timeout
+    })
+
+    test.todo('should compose fetch options with proxy', () => {
+      // Compose fetch options with proxy
+    })
+
+    test.todo('should not set proxy when not provided', () => {
+      // Not set proxy when not provided
+    })
   })
 
   describe('response handling', () => {
-    // TODO: should return fetch response
-    // TODO: should throw error when response is null
-    // TODO: should clone response for cheerio
-    // TODO: should extract HTML text from response
+    test.todo('should return fetch response', () => {
+      // Return fetch response
+    })
+
+    test.todo('should throw error when response is null', () => {
+      // Throw error when response is null
+    })
+
+    test.todo('should clone response for cheerio', () => {
+      // Clone response for cheerio
+    })
+
+    test.todo('should extract HTML text from response', () => {
+      // Extract HTML text from response
+    })
   })
 
   describe('validation', () => {
-    // TODO: should validate response when validator provided
-    // TODO: should pass mechanism and response to validator
-    // TODO: should throw error when validation fails
-    // TODO: should skip validation when validator not provided
+    test.todo('should validate response when validator provided', () => {
+      // Validate response when validator provided
+    })
+
+    test.todo('should pass mechanism and response to validator', () => {
+      // Pass mechanism and response to validator
+    })
+
+    test.todo('should throw error when validation fails', () => {
+      // Throw error when validation fails
+    })
+
+    test.todo('should skip validation when validator not provided', () => {
+      // Skip validation when validator not provided
+    })
   })
 
   describe('cheerio lazy loading', () => {
-    // TODO: should create getter for $ property
-    // TODO: should not load cheerio immediately
-    // TODO: should load cheerio on first $ access
-    // TODO: should cache cheerio instance
-    // TODO: should return same instance on subsequent accesses
+    test.todo('should create getter for $ property', () => {
+      // Create getter for $ property
+    })
+
+    test.todo('should not load cheerio immediately', () => {
+      // Not load cheerio immediately
+    })
+
+    test.todo('should load cheerio on first $ access', () => {
+      // Load cheerio on first $ access
+    })
+
+    test.todo('should cache cheerio instance', () => {
+      // Cache cheerio instance
+    })
+
+    test.todo('should return same instance on subsequent accesses', () => {
+      // Return same instance on subsequent accesses
+    })
   })
 })
 
 describe('executeBrowserMechanism', () => {
   describe('browser initialization', () => {
-    // TODO: should get browser instance
-    // TODO: should use engine from config
-    // TODO: should use default engine when not specified
-    // TODO: should create browser context with options
-    // TODO: should create page from context
+    test.todo('should get browser instance', () => {
+      // Get browser instance
+    })
+
+    test.todo('should use engine from config', () => {
+      // Use engine from config
+    })
+
+    test.todo('should use default engine when not specified', () => {
+      // Use default engine when not specified
+    })
+
+    test.todo('should create browser context with options', () => {
+      // Create browser context with options
+    })
+
+    test.todo('should create page from context', () => {
+      // Create page from context
+    })
   })
 
   describe('navigation', () => {
-    // TODO: should navigate to url
-    // TODO: should wait for waitUntil condition
-    // TODO: should apply timeout from options
-    // TODO: should return response from navigation
-    // TODO: should throw error when navigation fails
+    test.todo('should navigate to url', () => {
+      // Navigate to url
+    })
+
+    test.todo('should wait for waitUntil condition', () => {
+      // Wait for waitUntil condition
+    })
+
+    test.todo('should apply timeout from options', () => {
+      // Apply timeout from options
+    })
+
+    test.todo('should return response from navigation', () => {
+      // Return response from navigation
+    })
+
+    test.todo('should throw error when navigation fails', () => {
+      // Throw error when navigation fails
+    })
   })
 
   describe('validation', () => {
-    // TODO: should validate response when validator provided
-    // TODO: should pass mechanism and response to validator
-    // TODO: should throw error when validation fails
-    // TODO: should skip validation when validator not provided
+    test.todo('should validate response when validator provided', () => {
+      // Validate response when validator provided
+    })
+
+    test.todo('should pass mechanism and response to validator', () => {
+      // Pass mechanism and response to validator
+    })
+
+    test.todo('should throw error when validation fails', () => {
+      // Throw error when validation fails
+    })
+
+    test.todo('should skip validation when validator not provided', () => {
+      // Skip validation when validator not provided
+    })
   })
 
   describe('cleanup', () => {
-    // TODO: should return cleanup function
-    // TODO: should close context on cleanup
-    // TODO: should close context on error
-    // TODO: should not throw error if cleanup fails
+    test.todo('should return cleanup function', () => {
+      // Return cleanup function
+    })
+
+    test.todo('should close context on cleanup', () => {
+      // Close context on cleanup
+    })
+
+    test.todo('should close context on error', () => {
+      // Close context on error
+    })
+
+    test.todo('should not throw error if cleanup fails', () => {
+      // Not throw error if cleanup fails
+    })
   })
 
   describe('error handling', () => {
-    // TODO: should cleanup context on navigation error
-    // TODO: should cleanup context on validation error
-    // TODO: should cleanup context on page creation error
-    // TODO: should propagate original error after cleanup
+    test.todo('should cleanup context on navigation error', () => {
+      // Cleanup context on navigation error
+    })
+
+    test.todo('should cleanup context on validation error', () => {
+      // Cleanup context on validation error
+    })
+
+    test.todo('should cleanup context on page creation error', () => {
+      // Cleanup context on page creation error
+    })
+
+    test.todo('should propagate original error after cleanup', () => {
+      // Propagate original error after cleanup
+    })
   })
 })
 
@@ -610,32 +753,82 @@ describe('executeCustomMechanism', () => {
 
 describe('executeStrategy', () => {
   describe('request options composition', () => {
-    // TODO: should compose request options from strategy and config
-    // TODO: should select random proxy when useProxy is true
-    // TODO: should not include proxy when useProxy is false
-    // TODO: should select random user agent from config
-    // TODO: should select random viewport from config
-    // TODO: should include headers from config
-    // TODO: should include timeout from config
-    // TODO: should handle empty options
-    // TODO: should handle partial options
+    test.todo('should compose request options from strategy and config', () => {
+      // Compose request options from strategy and config
+    })
+
+    test.todo('should select random proxy when useProxy is true', () => {
+      // Select random proxy when useProxy is true
+    })
+
+    test.todo('should not include proxy when useProxy is false', () => {
+      // Not include proxy when useProxy is false
+    })
+
+    test.todo('should select random user agent from config', () => {
+      // Select random user agent from config
+    })
+
+    test.todo('should select random viewport from config', () => {
+      // Select random viewport from config
+    })
+
+    test.todo('should include headers from config', () => {
+      // Include headers from config
+    })
+
+    test.todo('should include timeout from config', () => {
+      // Include timeout from config
+    })
+
+    test.todo('should handle empty options', () => {
+      // Handle empty options
+    })
+
+    test.todo('should handle partial options', () => {
+      // Handle partial options
+    })
   })
 
   describe('retry delegation', () => {
-    // TODO: should delegate to withRetry function
-    // TODO: should pass retry config from options
-    // TODO: should execute request without retry when not configured
+    test.todo('should delegate to withRetry function', () => {
+      // Delegate to withRetry function
+    })
+
+    test.todo('should pass retry config from options', () => {
+      // Pass retry config from options
+    })
+
+    test.todo('should execute request without retry when not configured', () => {
+      // Execute request without retry when not configured
+    })
   })
 
   describe('hooks delegation', () => {
-    // TODO: should pass hooks to withRetry function
-    // TODO: should not pass hooks when not configured
+    test.todo('should pass hooks to withRetry function', () => {
+      // Pass hooks to withRetry function
+    })
+
+    test.todo('should not pass hooks when not configured', () => {
+      // Not pass hooks when not configured
+    })
   })
 
   describe('mechanism routing', () => {
-    // TODO: should route to executeFetchMechanism for fetch mechanism
-    // TODO: should route to executeBrowserMechanism for browser mechanism
-    // TODO: should route to executeCustomMechanism for custom mechanism
-    // TODO: should throw error for unknown mechanism
+    test.todo('should route to executeFetchMechanism for fetch mechanism', () => {
+      // Route to executeFetchMechanism for fetch mechanism
+    })
+
+    test.todo('should route to executeBrowserMechanism for browser mechanism', () => {
+      // Route to executeBrowserMechanism for browser mechanism
+    })
+
+    test.todo('should route to executeCustomMechanism for custom mechanism', () => {
+      // Route to executeCustomMechanism for custom mechanism
+    })
+
+    test.todo('should throw error for unknown mechanism', () => {
+      // Throw error for unknown mechanism
+    })
   })
 })

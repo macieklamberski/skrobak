@@ -22,16 +22,45 @@ describe('scrape', () => {
   afterAll(() => server.close())
 
   describe('input validation', () => {
-    // TODO: should throw error when url is empty string
-    // TODO: should throw error when url is invalid format
-    // TODO: should handle URLs with special characters
-    // TODO: should handle URLs with query parameters
-    // TODO: should handle URLs with hash fragments
-    // TODO: should accept valid http URLs
-    // TODO: should accept valid https URLs
-    // TODO: should throw error when config is null/undefined
-    // TODO: should throw error when strategies array is null
-    // TODO: should throw error when strategies array is undefined
+    test.todo('should throw error when url is empty string', () => {
+      // Throw error when url is empty string
+    })
+
+    test.todo('should throw error when url is invalid format', () => {
+      // Throw error when url is invalid format
+    })
+
+    test.todo('should handle URLs with special characters', () => {
+      // Handle URLs with special characters
+    })
+
+    test.todo('should handle URLs with query parameters', () => {
+      // Handle URLs with query parameters
+    })
+
+    test.todo('should handle URLs with hash fragments', () => {
+      // Handle URLs with hash fragments
+    })
+
+    test.todo('should accept valid http URLs', () => {
+      // Accept valid http URLs
+    })
+
+    test.todo('should accept valid https URLs', () => {
+      // Accept valid https URLs
+    })
+
+    test.todo('should throw error when config is null/undefined', () => {
+      // Throw error when config is null/undefined
+    })
+
+    test.todo('should throw error when strategies array is null', () => {
+      // Throw error when strategies array is null
+    })
+
+    test.todo('should throw error when strategies array is undefined', () => {
+      // Throw error when strategies array is undefined
+    })
   })
 
   describe('fetch mechanism', () => {
@@ -138,17 +167,29 @@ describe('scrape', () => {
     })
 
     describe('HTTP status codes', () => {
-      // TODO: should handle successful responses (2xx)
-      // TODO: should handle client errors (4xx)
-      // TODO: should handle server errors (5xx)
+      test.todo('should handle successful responses (2xx)', () => {
+        // Handle successful responses (2xx)
+      })
+
+      test.todo('should handle client errors (4xx)', () => {
+        // Handle client errors (4xx)
+      })
+
+      test.todo('should handle server errors (5xx)', () => {
+        // Handle server errors (5xx)
+      })
     })
 
     describe('network errors', () => {
-      // TODO: should handle network errors (integration test)
+      test.todo('should handle network errors (integration test)', () => {
+        // Handle network errors (integration test)
+      })
     })
 
     describe('response handling', () => {
-      // TODO: should handle different content types (JSON, HTML, XML)
+      test.todo('should handle different content types (JSON, HTML, XML)', () => {
+        // Handle different content types (JSON, HTML, XML)
+      })
     })
 
     // Note: Fetch options composition tested in composeFetchOptions() unit tests (fetch.test.ts)
@@ -157,22 +198,39 @@ describe('scrape', () => {
 
   describe('browser mechanism', () => {
     describe('page loading', () => {
-      // TODO: should successfully load page with browser (integration test)
-      // TODO: should execute JavaScript in browser (integration test)
-      // TODO: should handle dynamic content loading (integration test)
+      test.todo('should successfully load page with browser (integration test)', () => {
+        // Successfully load page with browser (integration test)
+      })
+
+      test.todo('should execute JavaScript in browser (integration test)', () => {
+        // Execute JavaScript in browser (integration test)
+      })
+
+      test.todo('should handle dynamic content loading (integration test)', () => {
+        // Handle dynamic content loading (integration test)
+      })
     })
 
     describe('wait conditions', () => {
-      // TODO: should respect waitUntil configuration (integration test)
+      test.todo('should respect waitUntil configuration (integration test)', () => {
+        // Respect waitUntil configuration (integration test)
+      })
     })
 
     describe('resource filtering', () => {
-      // TODO: should block specific resource types (integration test)
+      test.todo('should block specific resource types (integration test)', () => {
+        // Block specific resource types (integration test)
+      })
     })
 
     describe('error handling', () => {
-      // TODO: should handle browser navigation timeout
-      // TODO: should handle page errors gracefully
+      test.todo('should handle browser navigation timeout', () => {
+        // Handle browser navigation timeout
+      })
+
+      test.todo('should handle page errors gracefully', () => {
+        // Handle page errors gracefully
+      })
     })
 
     // Note: Browser engine creation/caching tested in getBrowser() unit tests (browser.test.ts)
@@ -347,10 +405,21 @@ describe('scrape', () => {
         }
       })
 
-      // TODO: should use second strategy when first fails
-      // TODO: should use third strategy when first two fail
-      // TODO: should not execute remaining strategies after success
-      // TODO: should handle mixed strategy types (fetch, browser, custom)
+      test.todo('should use second strategy when first fails', () => {
+        // Use second strategy when first fails
+      })
+
+      test.todo('should use third strategy when first two fail', () => {
+        // Use third strategy when first two fail
+      })
+
+      test.todo('should not execute remaining strategies after success', () => {
+        // Not execute remaining strategies after success
+      })
+
+      test.todo('should handle mixed strategy types (fetch, browser, custom)', () => {
+        // Handle mixed strategy types (fetch, browser, custom)
+      })
     })
 
     describe('error cases', () => {
@@ -380,20 +449,51 @@ describe('scrape', () => {
         await expect(resultFn()).rejects.toThrow('No strategies provided')
       })
 
-      // TODO: should preserve error from last failed strategy
+      test.todo('should preserve error from last failed strategy', () => {
+        // Preserve error from last failed strategy
+      })
     })
 
     describe('hooks', () => {
-      // TODO: should call onStrategyFailed hook when strategy fails
-      // TODO: should pass correct context to onStrategyFailed (error, strategy, strategyIndex, totalStrategies)
-      // TODO: should call onStrategyFailed for each failed strategy
-      // TODO: should not call onStrategyFailed when strategy succeeds
-      // TODO: should call onAllStrategiesFailed hook when all strategies fail
-      // TODO: should pass correct context to onAllStrategiesFailed (lastError, strategies, totalAttempts)
-      // TODO: should not call onAllStrategiesFailed when any strategy succeeds
-      // TODO: should call both onStrategyFailed and onAllStrategiesFailed for last failed strategy
-      // TODO: should handle hooks throwing errors gracefully
-      // TODO: should not call hooks when not configured
+      test.todo('should call onStrategyFailed hook when strategy fails', () => {
+        // Call onStrategyFailed hook when strategy fails
+      })
+
+      test.todo('should pass correct context to onStrategyFailed (error, strategy, strategyIndex, totalStrategies)', () => {
+        // Pass correct context to onStrategyFailed (error, strategy, strategyIndex, totalStrategies)
+      })
+
+      test.todo('should call onStrategyFailed for each failed strategy', () => {
+        // Call onStrategyFailed for each failed strategy
+      })
+
+      test.todo('should not call onStrategyFailed when strategy succeeds', () => {
+        // Not call onStrategyFailed when strategy succeeds
+      })
+
+      test.todo('should call onAllStrategiesFailed hook when all strategies fail', () => {
+        // Call onAllStrategiesFailed hook when all strategies fail
+      })
+
+      test.todo('should pass correct context to onAllStrategiesFailed (lastError, strategies, totalAttempts)', () => {
+        // Pass correct context to onAllStrategiesFailed (lastError, strategies, totalAttempts)
+      })
+
+      test.todo('should not call onAllStrategiesFailed when any strategy succeeds', () => {
+        // Not call onAllStrategiesFailed when any strategy succeeds
+      })
+
+      test.todo('should call both onStrategyFailed and onAllStrategiesFailed for last failed strategy', () => {
+        // Call both onStrategyFailed and onAllStrategiesFailed for last failed strategy
+      })
+
+      test.todo('should handle hooks throwing errors gracefully', () => {
+        // Handle hooks throwing errors gracefully
+      })
+
+      test.todo('should not call hooks when not configured', () => {
+        // Not call hooks when not configured
+      })
     })
   })
 
@@ -476,8 +576,13 @@ describe('scrape', () => {
         await expect(resultFn()).rejects.toThrow('Response validation failed')
       })
 
-      // TODO: should continue to next strategy on validation failure (integration test)
-      // TODO: should handle validation function throwing error
+      test.todo('should continue to next strategy on validation failure (integration test)', () => {
+        // Continue to next strategy on validation failure (integration test)
+      })
+
+      test.todo('should handle validation function throwing error', () => {
+        // Handle validation function throwing error
+      })
     })
 
     describe('mechanism context', () => {
@@ -513,23 +618,47 @@ describe('scrape', () => {
   })
 
   describe('user agent configuration', () => {
-    // TODO: should use user agent from config (simple integration test)
+    test.todo('should use user agent from config (simple integration test)', () => {
+      // Use user agent from config (simple integration test)
+    })
     // Note: Detailed rotation/selection logic tested in getRandomFrom() unit tests
   })
 
   describe('viewport configuration', () => {
-    // TODO: should apply viewport from config to browser mechanism (simple integration test)
+    test.todo('should apply viewport from config to browser mechanism (simple integration test)', () => {
+      // Apply viewport from config to browser mechanism (simple integration test)
+    })
     // Note: Detailed rotation/selection logic tested in getRandomFrom() unit tests
   })
 
   describe('header configuration', () => {
-    // TODO: should merge custom headers with default headers
-    // TODO: should override default headers with custom headers
-    // TODO: should handle empty headers object
-    // TODO: should handle null/undefined header values
-    // TODO: should handle case-insensitive header names
-    // TODO: should preserve header order
-    // TODO: should handle special characters in header values
+    test.todo('should merge custom headers with default headers', () => {
+      // Merge custom headers with default headers
+    })
+
+    test.todo('should override default headers with custom headers', () => {
+      // Override default headers with custom headers
+    })
+
+    test.todo('should handle empty headers object', () => {
+      // Handle empty headers object
+    })
+
+    test.todo('should handle null/undefined header values', () => {
+      // Handle null/undefined header values
+    })
+
+    test.todo('should handle case-insensitive header names', () => {
+      // Handle case-insensitive header names
+    })
+
+    test.todo('should preserve header order', () => {
+      // Preserve header order
+    })
+
+    test.todo('should handle special characters in header values', () => {
+      // Handle special characters in header values
+    })
   })
 
   describe('timeout', () => {
@@ -550,14 +679,24 @@ describe('scrape', () => {
       await expect(resultFn()).rejects.toThrow()
     })
 
-    // TODO: should apply timeout to browser mechanism (integration test)
+    test.todo('should apply timeout to browser mechanism (integration test)', () => {
+      // Apply timeout to browser mechanism (integration test)
+    })
     // Note: Timeout edge cases (zero, negative, huge) tested in strategy.test.ts unit tests
   })
 
   describe('retry mechanism', () => {
-    // TODO: should retry on failure and succeed (simple integration test)
-    // TODO: should propagate last error after all retries
-    // TODO: should apply retry to each strategy independently
+    test.todo('should retry on failure and succeed (simple integration test)', () => {
+      // Retry on failure and succeed (simple integration test)
+    })
+
+    test.todo('should propagate last error after all retries', () => {
+      // Propagate last error after all retries
+    })
+
+    test.todo('should apply retry to each strategy independently', () => {
+      // Apply retry to each strategy independently
+    })
     // Note: Backoff strategy details (exponential/linear/constant) tested in:
     //   - calculateRetryDelay() unit tests (strategy.test.ts)
     //   - withRetry() unit tests (strategy.test.ts)
@@ -587,40 +726,76 @@ describe('scrape', () => {
       }
     })
 
-    // TODO: should parse complex HTML structures (integration test)
-    // TODO: should support CSS selectors (integration test)
+    test.todo('should parse complex HTML structures (integration test)', () => {
+      // Parse complex HTML structures (integration test)
+    })
+
+    test.todo('should support CSS selectors (integration test)', () => {
+      // Support CSS selectors (integration test)
+    })
 
     // Note: Cheerio lazy loading implementation tested in executeFetchRequest() unit tests (strategy.test.ts)
   })
 
   describe('error handling', () => {
     describe('error messages', () => {
-      // TODO: should throw descriptive error messages
-      // TODO: should preserve error stack traces
+      test.todo('should throw descriptive error messages', () => {
+        // Throw descriptive error messages
+      })
+
+      test.todo('should preserve error stack traces', () => {
+        // Preserve error stack traces
+      })
     })
 
     describe('error types', () => {
-      // TODO: should handle synchronous errors
-      // TODO: should handle asynchronous errors
-      // TODO: should handle unexpected error types
+      test.todo('should handle synchronous errors', () => {
+        // Handle synchronous errors
+      })
+
+      test.todo('should handle asynchronous errors', () => {
+        // Handle asynchronous errors
+      })
+
+      test.todo('should handle unexpected error types', () => {
+        // Handle unexpected error types
+      })
     })
 
     describe('function errors', () => {
-      // TODO: should handle errors in validation function
-      // TODO: should handle errors in custom fetch function
-      // TODO: should handle errors in browser navigation
+      test.todo('should handle errors in validation function', () => {
+        // Handle errors in validation function
+      })
+
+      test.todo('should handle errors in custom fetch function', () => {
+        // Handle errors in custom fetch function
+      })
+
+      test.todo('should handle errors in browser navigation', () => {
+        // Handle errors in browser navigation
+      })
     })
   })
 
   describe('memory and performance', () => {
     describe('resource cleanup', () => {
-      // TODO: should cleanup browser context after success
-      // TODO: should cleanup browser context after failure
+      test.todo('should cleanup browser context after success', () => {
+        // Cleanup browser context after success
+      })
+
+      test.todo('should cleanup browser context after failure', () => {
+        // Cleanup browser context after failure
+      })
     })
 
     describe('concurrency', () => {
-      // TODO: should handle concurrent scrape() calls
-      // TODO: should handle sequential scrape() calls
+      test.todo('should handle concurrent scrape() calls', () => {
+        // Handle concurrent scrape() calls
+      })
+
+      test.todo('should handle sequential scrape() calls', () => {
+        // Handle sequential scrape() calls
+      })
     })
 
     // Note: Browser instance caching tested in getBrowser() unit tests (browser.test.ts)

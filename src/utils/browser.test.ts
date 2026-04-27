@@ -102,93 +102,221 @@ describe('createContext', () => {
   })
 
   describe('proxy configuration', () => {
-    // TODO: should set proxy server in context options
-    // TODO: should handle proxy with authentication
-    // TODO: should handle invalid proxy format
+    test.todo('should set proxy server in context options', () => {
+      // Set proxy server in context options
+    })
+
+    test.todo('should handle proxy with authentication', () => {
+      // Handle proxy with authentication
+    })
+
+    test.todo('should handle invalid proxy format', () => {
+      // Handle invalid proxy format
+    })
   })
 
   describe('user agent override', () => {
-    // TODO: should override default user agent
-    // TODO: should handle empty user agent string
+    test.todo('should override default user agent', () => {
+      // Override default user agent
+    })
+
+    test.todo('should handle empty user agent string', () => {
+      // Handle empty user agent string
+    })
   })
 
   describe('viewport dimensions', () => {
-    // TODO: should handle different viewport sizes
-    // TODO: should handle zero width viewport
-    // TODO: should handle zero height viewport
-    // TODO: should handle negative viewport dimensions
+    test.todo('should handle different viewport sizes', () => {
+      // Handle different viewport sizes
+    })
+
+    test.todo('should handle zero width viewport', () => {
+      // Handle zero width viewport
+    })
+
+    test.todo('should handle zero height viewport', () => {
+      // Handle zero height viewport
+    })
+
+    test.todo('should handle negative viewport dimensions', () => {
+      // Handle negative viewport dimensions
+    })
   })
 
   describe('combined options', () => {
-    // TODO: should create context with proxy and user agent
-    // TODO: should create context with proxy and viewport
-    // TODO: should create context with user agent and viewport
+    test.todo('should create context with proxy and user agent', () => {
+      // Create context with proxy and user agent
+    })
+
+    test.todo('should create context with proxy and viewport', () => {
+      // Create context with proxy and viewport
+    })
+
+    test.todo('should create context with user agent and viewport', () => {
+      // Create context with user agent and viewport
+    })
   })
 
   describe('error handling', () => {
-    // TODO: should handle context creation failure
-    // TODO: should handle invalid browser instance
+    test.todo('should handle context creation failure', () => {
+      // Handle context creation failure
+    })
+
+    test.todo('should handle invalid browser instance', () => {
+      // Handle invalid browser instance
+    })
   })
 })
 
 describe('allowListedResources', () => {
   describe('resource filtering', () => {
-    // TODO: should allow only specified resource types
-    // TODO: should block unspecified resource types
-    // TODO: should handle empty resource list
-    // TODO: should handle single resource type
-    // TODO: should handle multiple resource types
-    // TODO: should handle all resource types
+    test.todo('should allow only specified resource types', () => {
+      // Allow only specified resource types
+    })
+
+    test.todo('should block unspecified resource types', () => {
+      // Block unspecified resource types
+    })
+
+    test.todo('should handle empty resource list', () => {
+      // Handle empty resource list
+    })
+
+    test.todo('should handle single resource type', () => {
+      // Handle single resource type
+    })
+
+    test.todo('should handle multiple resource types', () => {
+      // Handle multiple resource types
+    })
+
+    test.todo('should handle all resource types', () => {
+      // Handle all resource types
+    })
   })
 
   describe('specific resource types', () => {
-    // TODO: should allow document resources
-    // TODO: should allow stylesheet resources
-    // TODO: should allow image resources
-    // TODO: should allow script resources
-    // TODO: should allow xhr resources
-    // TODO: should allow fetch resources
-    // TODO: should block fonts when not in list
-    // TODO: should block media when not in list
+    test.todo('should allow document resources', () => {
+      // Allow document resources
+    })
+
+    test.todo('should allow stylesheet resources', () => {
+      // Allow stylesheet resources
+    })
+
+    test.todo('should allow image resources', () => {
+      // Allow image resources
+    })
+
+    test.todo('should allow script resources', () => {
+      // Allow script resources
+    })
+
+    test.todo('should allow xhr resources', () => {
+      // Allow xhr resources
+    })
+
+    test.todo('should allow fetch resources', () => {
+      // Allow fetch resources
+    })
+
+    test.todo('should block fonts when not in list', () => {
+      // Block fonts when not in list
+    })
+
+    test.todo('should block media when not in list', () => {
+      // Block media when not in list
+    })
   })
 
   describe('error handling', () => {
-    // TODO: should handle route setup failure
-    // TODO: should handle abort errors gracefully
+    test.todo('should handle route setup failure', () => {
+      // Handle route setup failure
+    })
+
+    test.todo('should handle abort errors gracefully', () => {
+      // Handle abort errors gracefully
+    })
   })
 })
 
 describe('createPage', () => {
   describe('page creation', () => {
-    // TODO: should create page from browser
-    // TODO: should create page from context
-    // TODO: should return page instance
+    test.todo('should create page from browser', () => {
+      // Create page from browser
+    })
+
+    test.todo('should create page from context', () => {
+      // Create page from context
+    })
+
+    test.todo('should return page instance', () => {
+      // Return page instance
+    })
   })
 
   describe('headers configuration', () => {
-    // TODO: should set extra HTTP headers
-    // TODO: should handle empty headers object
-    // TODO: should handle multiple headers
-    // TODO: should not set headers when not provided
+    test.todo('should set extra HTTP headers', () => {
+      // Set extra HTTP headers
+    })
+
+    test.todo('should handle empty headers object', () => {
+      // Handle empty headers object
+    })
+
+    test.todo('should handle multiple headers', () => {
+      // Handle multiple headers
+    })
+
+    test.todo('should not set headers when not provided', () => {
+      // Not set headers when not provided
+    })
   })
 
   describe('resource filtering', () => {
-    // TODO: should apply resource allowlist when configured
-    // TODO: should not apply resource filtering when not configured
-    // TODO: should handle empty resources array
+    test.todo('should apply resource allowlist when configured', () => {
+      // Apply resource allowlist when configured
+    })
+
+    test.todo('should not apply resource filtering when not configured', () => {
+      // Not apply resource filtering when not configured
+    })
+
+    test.todo('should handle empty resources array', () => {
+      // Handle empty resources array
+    })
   })
 
   describe('combined options', () => {
-    // TODO: should create page with headers and resources
-    // TODO: should create page with only headers
-    // TODO: should create page with only resources
-    // TODO: should create page with no options
+    test.todo('should create page with headers and resources', () => {
+      // Create page with headers and resources
+    })
+
+    test.todo('should create page with only headers', () => {
+      // Create page with only headers
+    })
+
+    test.todo('should create page with only resources', () => {
+      // Create page with only resources
+    })
+
+    test.todo('should create page with no options', () => {
+      // Create page with no options
+    })
   })
 
   describe('error handling', () => {
-    // TODO: should handle page creation failure
-    // TODO: should handle header setting failure
-    // TODO: should handle resource filtering failure
+    test.todo('should handle page creation failure', () => {
+      // Handle page creation failure
+    })
+
+    test.todo('should handle header setting failure', () => {
+      // Handle header setting failure
+    })
+
+    test.todo('should handle resource filtering failure', () => {
+      // Handle resource filtering failure
+    })
   })
 })
 
