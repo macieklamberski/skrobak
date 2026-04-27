@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'bun:test'
+import { beforeEach, describe, expect, test } from 'bun:test'
 import type { Browser } from 'playwright'
 import type { RequestOptions } from '../types/index.js'
 import { closeAllBrowsers, createContext, getBrowser } from './browser.js'
@@ -8,14 +8,14 @@ describe('getBrowser', () => {
     await closeAllBrowsers()
   })
 
-  it('should create and return a chromium browser', async () => {
+  test('should create and return a chromium browser', async () => {
     const browser = await getBrowser('chromium')
 
     expect(browser).toBeDefined()
     expect(browser.isConnected()).toBe(true)
   })
 
-  it('should return same browser instance on subsequent calls', async () => {
+  test('should return same browser instance on subsequent calls', async () => {
     const browser1 = await getBrowser('chromium')
     const browser2 = await getBrowser('chromium')
 
@@ -45,14 +45,13 @@ describe('createContext', () => {
     browser = await getBrowser('chromium')
   })
 
-  it('should create context without options', async () => {
+  test('should create context without options', async () => {
     const context = await createContext(browser, {})
 
     expect(context).toBeDefined()
-    await context.close()
   })
 
-  it('should create context with user agent', async () => {
+  test('should create context with user agent', async () => {
     const options: RequestOptions = {
       userAgent: 'Mozilla/5.0 Custom Agent',
     }
@@ -62,11 +61,9 @@ describe('createContext', () => {
 
     // Note: Stealth plugin may override the user agent, so we just verify context was created
     expect(context).toBeDefined()
-
-    await context.close()
   })
 
-  it('should create context with viewport settings', async () => {
+  test('should create context with viewport settings', async () => {
     const options: RequestOptions = {
       viewport: {
         width: 1920,
@@ -79,11 +76,9 @@ describe('createContext', () => {
     const viewport = page.viewportSize()
 
     expect(viewport).toEqual({ width: 1920, height: 1080 })
-
-    await context.close()
   })
 
-  it('should create context with all options combined', async () => {
+  test('should create context with all options combined', async () => {
     const options: RequestOptions = {
       userAgent: 'Mozilla/5.0 Test Agent',
       viewport: {
@@ -98,15 +93,12 @@ describe('createContext', () => {
     const viewport = page.viewportSize()
 
     expect(viewport).toEqual({ width: 1366, height: 768 })
-
-    await context.close()
   })
 
-  it('should create context with empty options object', async () => {
+  test('should create context with empty options object', async () => {
     const context = await createContext(browser, {})
 
     expect(context).toBeDefined()
-    await context.close()
   })
 
   describe('proxy configuration', () => {
@@ -201,7 +193,7 @@ describe('createPage', () => {
 })
 
 describe.skip('closeAllBrowsers', () => {
-  it('should close all open browsers', async () => {
+  test('should close all open browsers', async () => {
     const chromiumBrowser = await getBrowser('chromium')
 
     expect(chromiumBrowser.isConnected()).toBe(true)
@@ -211,12 +203,12 @@ describe.skip('closeAllBrowsers', () => {
     expect(chromiumBrowser.isConnected()).toBe(false)
   })
 
-  it('should handle closing when no browsers are open', async () => {
+  test('should handle closing when no browsers are open', async () => {
     await closeAllBrowsers()
     // Should not throw error
   })
 
-  it('should allow creating new browsers after closing all', async () => {
+  test('should allow creating new browsers after closing all', async () => {
     const browser1 = await getBrowser('chromium')
     await closeAllBrowsers()
 

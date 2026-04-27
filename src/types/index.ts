@@ -14,7 +14,7 @@ export type RequestOptions = {
 export type CustomFetchFn<TCustomResponse = unknown> = (
   url: string,
   options: RequestOptions,
-) => Promise<TCustomResponse>
+) => TCustomResponse | Promise<TCustomResponse>
 
 export type CustomConfig<TCustomResponse = unknown> = {
   fn: CustomFetchFn<TCustomResponse>

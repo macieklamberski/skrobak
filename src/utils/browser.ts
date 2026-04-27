@@ -44,7 +44,7 @@ export const getBrowser = async (engine: BrowserEngine): Promise<Browser> => {
   return newBrowser
 }
 
-export const createContext = async (
+export const createContext = (
   browser: Browser,
   options: RequestOptions,
 ): Promise<BrowserContext> => {

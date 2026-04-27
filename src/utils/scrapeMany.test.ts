@@ -85,7 +85,7 @@ describe('scrapeMany', () => {
         ['https://example.com/page1', 'https://example.com/page2'],
         { strategies: [{ mechanism: 'fetch' }] },
         {
-          onSuccess: async ({ url, index }) => {
+          onSuccess: ({ url, index }) => {
             successCalls.push({ url, index })
           },
         },
@@ -105,7 +105,7 @@ describe('scrapeMany', () => {
         ['https://example.com/page1', 'https://example.com/error'],
         { strategies: [{ mechanism: 'fetch' }] },
         {
-          onError: async ({ url, index }) => {
+          onError: ({ url, index }) => {
             errorCalls.push({ url, index })
           },
         },
@@ -123,7 +123,7 @@ describe('scrapeMany', () => {
         ['https://example.com/page1'],
         { strategies: [{ mechanism: 'fetch' }] },
         {
-          onSuccess: async ({ result }) => {
+          onSuccess: ({ result }) => {
             if (result.mechanism === 'fetch') {
               capturedTitle = result.$('title').text()
             }
@@ -145,7 +145,7 @@ describe('scrapeMany', () => {
         ['https://example.com/page1', 'https://example.com/page2'],
         { strategies: [{ mechanism: 'fetch' }] },
         {
-          onSuccess: async ({ stats }) => {
+          onSuccess: ({ stats }) => {
             statsSnapshots.push({
               initial: stats.initial,
               processed: stats.processed,
@@ -196,7 +196,7 @@ describe('scrapeMany', () => {
         { strategies: [{ mechanism: 'fetch' }] },
         {
           delays: { min: 100, max: 150 },
-          onSuccess: async () => {
+          onSuccess: () => {
             timestamps.push(Date.now())
           },
         },
@@ -241,7 +241,7 @@ describe('scrapeMany', () => {
         ['https://example.com/discover'],
         { strategies: [{ mechanism: 'fetch' }] },
         {
-          onSuccess: async ({ result, url, addUrls }) => {
+          onSuccess: ({ result, url, addUrls }) => {
             processedUrls.push(url)
 
             if (result.mechanism === 'fetch' && url === 'https://example.com/discover') {
@@ -270,7 +270,7 @@ describe('scrapeMany', () => {
         ['https://example.com/page1'],
         { strategies: [{ mechanism: 'fetch' }] },
         {
-          onSuccess: async ({ url, addUrls }) => {
+          onSuccess: ({ url, addUrls }) => {
             processedUrls.push(url)
             // Try to add the same URL again
             addUrls('https://example.com/page1')
@@ -288,7 +288,7 @@ describe('scrapeMany', () => {
         ['https://example.com/page1'],
         { strategies: [{ mechanism: 'fetch' }] },
         {
-          onSuccess: async ({ url, addUrls }) => {
+          onSuccess: ({ url, addUrls }) => {
             processedUrls.push(url)
             if (url === 'https://example.com/page1') {
               addUrls('https://example.com/page2')

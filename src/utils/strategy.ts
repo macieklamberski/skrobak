@@ -233,7 +233,7 @@ const executeMechanism = async <TCustomResponse = unknown>(
   return result
 }
 
-export const executeStrategy = async <TCustomResponse = unknown>(
+export const executeStrategy = <TCustomResponse = unknown>(
   url: string,
   config: ScrapeConfig<TCustomResponse>,
   strategy: ScrapeStrategy,

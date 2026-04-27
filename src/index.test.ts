@@ -185,7 +185,7 @@ describe('scrape', () => {
       const result = await scrape('https://example.com/custom', {
         strategies: [{ mechanism: 'custom' }],
         custom: {
-          fn: async (url) => {
+          fn: (url) => {
             return { customData: 'test', url }
           },
         },
@@ -212,7 +212,7 @@ describe('scrape', () => {
         },
         strategies: [{ mechanism: 'custom' }],
         custom: {
-          fn: async (url, options) => {
+          fn: (url, options) => {
             capturedUrl = url
             capturedOptions = options
             return { success: true }
@@ -229,7 +229,7 @@ describe('scrape', () => {
       const result = await scrape('https://example.com/typed', {
         strategies: [{ mechanism: 'custom' }],
         custom: {
-          fn: async () => {
+          fn: () => {
             return { items: ['a', 'b', 'c'], count: 3 }
           },
         },
@@ -249,7 +249,7 @@ describe('scrape', () => {
           strategies: [{ mechanism: 'custom' }],
         })
 
-      expect(resultFn()).rejects.toThrow('Custom fetch function not provided')
+      await expect(resultFn()).rejects.toThrow('Custom fetch function not provided')
     })
 
     test('should validate custom response', async () => {
@@ -265,7 +265,7 @@ describe('scrape', () => {
           },
         },
         custom: {
-          fn: async () => {
+          fn: () => {
             return { status: 'ok', data: 'test' }
           },
         },
@@ -288,13 +288,13 @@ describe('scrape', () => {
             },
           },
           custom: {
-            fn: async () => {
+            fn: () => {
               return { status: 'error', data: 'test' }
             },
           },
         })
 
-      expect(resultFn()).rejects.toThrow('Response validation failed')
+      await expect(resultFn()).rejects.toThrow('Response validation failed')
     })
 
     test('should retry custom fetch on failure', async () => {
@@ -304,7 +304,7 @@ describe('scrape', () => {
         options: { retries: { count: 3, delay: 0 } },
         strategies: [{ mechanism: 'custom' }],
         custom: {
-          fn: async () => {
+          fn: () => {
             callCount++
 
             if (callCount < 3) {
@@ -367,7 +367,7 @@ describe('scrape', () => {
           })
         }
 
-        expect(resultFn()).rejects.toThrow()
+        await expect(resultFn()).rejects.toThrow()
       })
 
       test('should throw error when no strategies provided', async () => {
@@ -377,7 +377,7 @@ describe('scrape', () => {
           })
         }
 
-        expect(resultFn()).rejects.toThrow('No strategies provided')
+        await expect(resultFn()).rejects.toThrow('No strategies provided')
       })
 
       // TODO: should preserve error from last failed strategy
@@ -441,7 +441,7 @@ describe('scrape', () => {
           },
           strategies: [{ mechanism: 'fetch' }, { mechanism: 'custom' }],
           custom: {
-            fn: async () => {
+            fn: () => {
               return { success: true, data: 'custom data' }
             },
           },
@@ -473,7 +473,7 @@ describe('scrape', () => {
             strategies: [{ mechanism: 'fetch' }],
           })
 
-        expect(resultFn()).rejects.toThrow('Response validation failed')
+        await expect(resultFn()).rejects.toThrow('Response validation failed')
       })
 
       // TODO: should continue to next strategy on validation failure (integration test)
@@ -547,7 +547,7 @@ describe('scrape', () => {
           strategies: [{ mechanism: 'fetch' }],
         })
 
-      expect(resultFn()).rejects.toThrow()
+      await expect(resultFn()).rejects.toThrow()
     })
 
     // TODO: should apply timeout to browser mechanism (integration test)

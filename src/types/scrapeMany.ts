@@ -26,8 +26,8 @@ export type ScrapeManyErrorContext = {
 }
 
 export type ScrapeManyConfig<TCustomResponse = unknown> = {
-  onSuccess?: (context: ScrapeManySuccessContext<TCustomResponse>) => Promise<void>
-  onError?: (context: ScrapeManyErrorContext) => Promise<void>
+  onSuccess?: (context: ScrapeManySuccessContext<TCustomResponse>) => void | Promise<void>
+  onError?: (context: ScrapeManyErrorContext) => void | Promise<void>
   delays?: { min: number; max: number }
 }
 
