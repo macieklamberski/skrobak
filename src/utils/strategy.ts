@@ -1,4 +1,5 @@
 import { type CheerioAPI, load } from 'cheerio'
+import { sleep } from 'trousse'
 import defaults from '../defaults.json' with { type: 'json' }
 import locales from '../locales.json' with { type: 'json' }
 import type { BrowserEngine } from '../types/browser.js'
@@ -14,7 +15,6 @@ import type {
 } from '../types/result.js'
 import { createContext, createPage, getBrowser } from './browser.js'
 import { composeFetchOptions } from './fetch.js'
-import { sleep } from './sleep.js'
 
 export const calculateRetryDelay = (
   attempt: number,
