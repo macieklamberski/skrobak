@@ -48,6 +48,7 @@
     "msw": "^2.14.6",
     "playwright": "^1.61.1",
     "playwright-extra": "^4.3.6",
+    "trousse": "^1.0.0",
     "tsdown": "^0.22.3"
   }
 }

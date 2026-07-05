@@ -1,6 +1,4 @@
-export const sleep = (ms: number): Promise<void> => {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
+import { sleep } from 'trousse'
 
 export const randomSleep = (minMs: number, maxMs: number): Promise<void> => {
   const range = maxMs - minMs
