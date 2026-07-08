@@ -33,6 +33,9 @@ export const getBrowser = async (engine: BrowserEngine): Promise<Browser> => {
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
+      // Write shared memory to /tmp instead of /dev/shm, which is only 64 MB in most
+      // containers and makes Chromium crash ("browser has been closed") under load.
+      '--disable-dev-shm-usage',
       '--disable-blink-features=AutomationControlled',
       '--disable-infobars',
       '--window-size=1920,1080',
