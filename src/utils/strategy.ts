@@ -227,6 +227,12 @@ const executeMechanism = async <TCustomResponse = unknown>(
   }
 
   if (status !== undefined && (status < 200 || status >= 300)) {
+    // Close the browser context before throwing, otherwise a bad status leaves
+    // the page open and every retry attempt orphans another context.
+    if (result.mechanism === 'browser') {
+      await result.cleanup()
+    }
+
     throw new HttpError(`HTTP error ${status}`, status)
   }
 

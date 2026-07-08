@@ -1,7 +1,8 @@
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'bun:test'
 import { HttpResponse, http } from 'msw'
 import { setupServer } from 'msw/node'
-import { type RequestOptions, scrape } from './index.js'
+import { HttpError, type RequestOptions, scrape } from './index.js'
+import { closeAllBrowsers, getBrowser } from './utils/browser.js'
 
 describe('scrape', () => {
   const server = setupServer(
@@ -783,8 +784,23 @@ describe('scrape', () => {
         // Cleanup browser context after success
       })
 
-      test.todo('should cleanup browser context after failure', () => {
-        // Cleanup browser context after failure
+      test('should cleanup browser context after failure', async () => {
+        const server = Bun.serve({
+          port: 0,
+          fetch: () => new Response('not found', { status: 404 }),
+        })
+
+        try {
+          const browser = await getBrowser('chromium')
+          const resultFn = () =>
+            scrape(server.url.href, { strategies: [{ mechanism: 'browser', useProxy: false }] })
+
+          await expect(resultFn()).rejects.toThrow(HttpError)
+          expect(browser.contexts()).toHaveLength(0)
+        } finally {
+          await closeAllBrowsers()
+          await server.stop(true)
+        }
       })
     })
 
