@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from 'bun:test'
 import type { Browser } from 'playwright'
 import type { RequestOptions } from '../types/index.js'
-import { closeAllBrowsers, createContext, getBrowser } from './browser.js'
+import { closeAllBrowsers, createContext, getBrowser, parseProxy } from './browser.js'
 
 describe('getBrowser', () => {
   beforeEach(async () => {
@@ -102,16 +102,45 @@ describe('createContext', () => {
   })
 
   describe('proxy configuration', () => {
-    test.todo('should set proxy server in context options', () => {
-      // Set proxy server in context options
+    test('should set proxy server in context options', () => {
+      expect(parseProxy('http://proxy.com:8080')).toEqual({ server: 'http://proxy.com:8080' })
     })
 
-    test.todo('should handle proxy with authentication', () => {
-      // Handle proxy with authentication
+    test('should handle proxy with authentication', () => {
+      expect(parseProxy('http://user:pass@proxy.com:8080')).toEqual({
+        server: 'http://proxy.com:8080',
+        username: 'user',
+        password: 'pass',
+      })
     })
 
-    test.todo('should handle invalid proxy format', () => {
-      // Handle invalid proxy format
+    test('should decode percent-encoded credentials', () => {
+      expect(parseProxy('http://user%40mail:p%40ss%3Aword@proxy.com:8080')).toEqual({
+        server: 'http://proxy.com:8080',
+        username: 'user@mail',
+        password: 'p@ss:word',
+      })
+    })
+
+    test('should handle proxy with username only', () => {
+      expect(parseProxy('http://user@proxy.com:8080')).toEqual({
+        server: 'http://proxy.com:8080',
+        username: 'user',
+        password: '',
+      })
+    })
+
+    test('should handle socks proxy with authentication', () => {
+      expect(parseProxy('socks5://user:pass@proxy.com:1080')).toEqual({
+        server: 'socks5://proxy.com:1080',
+        username: 'user',
+        password: 'pass',
+      })
+    })
+
+    test('should handle invalid proxy format', () => {
+      expect(parseProxy('proxy.com:8080')).toEqual({ server: 'proxy.com:8080' })
+      expect(parseProxy('not a url')).toEqual({ server: 'not a url' })
     })
   })
 

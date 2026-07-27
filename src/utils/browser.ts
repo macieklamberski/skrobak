@@ -47,6 +47,26 @@ export const getBrowser = async (engine: BrowserEngine): Promise<Browser> => {
   return newBrowser
 }
 
+// Chromium ignores credentials embedded in the proxy URL and answers with 407, which surfaces as a
+// navigation timeout. They have to be passed as separate fields instead.
+export const parseProxy = (proxy: string): BrowserContextOptions['proxy'] => {
+  try {
+    const { protocol, host, username, password } = new URL(proxy)
+
+    if (!username && !password) {
+      return { server: proxy }
+    }
+
+    return {
+      server: `${protocol}//${host}`,
+      username: decodeURIComponent(username),
+      password: decodeURIComponent(password),
+    }
+  } catch {
+    return { server: proxy }
+  }
+}
+
 export const createContext = (
   browser: Browser,
   options: RequestOptions,
@@ -54,9 +74,7 @@ export const createContext = (
   const contextOptions: BrowserContextOptions = {}
 
   if (options.proxy) {
-    contextOptions.proxy = {
-      server: options.proxy,
-    }
+    contextOptions.proxy = parseProxy(options.proxy)
   }
 
   if (options.userAgent) {
