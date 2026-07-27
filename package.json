@@ -35,7 +35,7 @@
   "dependencies": {
     "cheerio": "^1.2.0",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "undici": "^8.7.0"
+    "undici": "^8.9.0"
   },
   "peerDependencies": {
     "playwright": "^1.61.1",
