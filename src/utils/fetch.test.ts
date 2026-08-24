@@ -152,7 +152,7 @@ describe('composeFetchOptions', () => {
         }),
       )
 
-      const fetchSpy = spyOn(global, 'fetch')
+      const fetchSpy = spyOn(globalThis, 'fetch')
 
       await scrape('https://example.com/with-proxy', {
         options: { proxies: ['http://proxy.example.com:8080'] },
@@ -180,7 +180,7 @@ describe('composeFetchOptions', () => {
         }),
       )
 
-      const fetchSpy = spyOn(global, 'fetch')
+      const fetchSpy = spyOn(globalThis, 'fetch')
 
       await scrape('https://example.com/without-proxy', {
         options: { proxies: ['http://proxy.example.com:8080'] },
