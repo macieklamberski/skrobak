@@ -12,7 +12,7 @@
       "devDependencies": {
         "@biomejs/biome": "^2.5.5",
         "@types/bun": "^1.3.14",
-        "kvalita": "^1.17.2",
+        "kvalita": "^1.21.0",
         "msw": "^2.15.0",
         "playwright": "^1.62.0",
         "playwright-extra": "^4.3.6",
@@ -600,7 +600,7 @@
 
     "kind-of": ["kind-of@3.2.2", "", { "dependencies": { "is-buffer": "^1.1.5" } }, "sha512-NOW9QQXMoZGg/oqnVNoNTTIFEIid1627WCffUBJEdMxYApq7mNE7CpzucIPc+ZQg25Phej7IJSmX3hO+oblOtQ=="],
 
-    "kvalita": ["kvalita@1.18.0", "", { "peerDependencies": { "@biomejs/biome": "^2.5.0", "@commitlint/cli": "^20.0.0 || ^21.0.0", "@commitlint/config-conventional": "^20.0.0 || ^21.0.0", "conventional-changelog-conventionalcommits": "^9.0.0", "lefthook": "^2.0.0", "semantic-release": "^24.0.0 || ^25.0.0", "typescript": "^6.0.0 || ^7.0.0" } }, "sha512-JwHclWwDsJrDUnT4dlYqYfiaw350T0e+Ylt2mGLxMAc/SUglK+BJDPKXj6fFJRDdzUj65EBJ6LhsfW7OXk3CXQ=="],
+    "kvalita": ["kvalita@1.21.0", "", { "peerDependencies": { "@biomejs/biome": "^2.5.0", "@commitlint/cli": "^20.0.0 || ^21.0.0", "@commitlint/config-conventional": "^20.0.0 || ^21.0.0", "conventional-changelog-conventionalcommits": "^9.0.0", "lefthook": "^2.0.0", "semantic-release": "^24.0.0 || ^25.0.0", "typescript": "^6.0.0 || ^7.0.0" } }, "sha512-bdMSD6gXNEuYw415cOgASeVGCESC956bGsid2Y5MHtuPUkgp4M6MiS0xwgEXfZVgnRD7xo9sQuyb2J2uhhKEOQ=="],
 
     "lazy-cache": ["lazy-cache@1.0.4", "", {}, "sha512-RE2g0b5VGZsOCFOCgP7omTRYFqydmZkBwl5oNnQ1lDYC57uyO9KqNnNVxT7COSHTxrRCWVcAVOcbjk+tvh/rgQ=="],
 
