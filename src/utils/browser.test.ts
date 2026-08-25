@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from 'bun:test'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'bun:test'
 import type { Browser } from 'playwright'
 import type { RequestOptions } from '../types/index.js'
 import { closeAllBrowsers, createContext, getBrowser, parseProxy } from './browser.js'
@@ -40,10 +40,22 @@ describe('getBrowser', () => {
 describe('createContext', () => {
   let browser: Browser
 
-  beforeEach(async () => {
+  // One browser for the whole block, and every context closed before it goes. Relaunching
+  // Chromium per test starved the two-core CI runner, and closing a browser that still had
+  // pages attached raced a CDP call against the shutdown: "Target page, context or browser
+  // has been closed", twice on main in two days.
+  beforeAll(async () => {
     await closeAllBrowsers()
     browser = await getBrowser('chromium')
   })
+
+  afterEach(async () => {
+    for (const context of browser.contexts()) {
+      await context.close()
+    }
+  })
+
+  afterAll(closeAllBrowsers)
 
   test('should create context without options', async () => {
     const context = await createContext(browser, {})
