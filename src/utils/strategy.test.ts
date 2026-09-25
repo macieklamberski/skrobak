@@ -184,11 +184,11 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(4)
     })
 
-    test('should throw last error after all retries', async () => {
+    test('should throw last error after all retries', () => {
       const fn = mock(() => Promise.reject(new Error('persistent failure')))
-      const resultFn = () => withRetry(fn, { count: 2, delay: 1 })
+      const throwing = () => withRetry(fn, { count: 2, delay: 1 })
 
-      await expect(resultFn()).rejects.toThrow('persistent failure')
+      expect(throwing()).rejects.toThrow('persistent failure')
     })
   })
 
@@ -239,23 +239,23 @@ describe('withRetry', () => {
   })
 
   describe('error handling', () => {
-    test('should retry on any error', async () => {
+    test('should retry on any error', () => {
       const fn = mock(() => Promise.reject('string error'))
-      const resultFn = () => withRetry(fn, { count: 1, delay: 1 })
+      const throwing = () => withRetry(fn, { count: 1, delay: 1 })
 
-      await expect(resultFn()).rejects.toBe('string error')
+      expect(throwing()).rejects.toBe('string error')
       expect(fn).toHaveBeenCalledTimes(2)
     })
 
-    test('should propagate last error', async () => {
+    test('should propagate last error', () => {
       let attempt = 0
       const fn = mock(() => {
         attempt++
         return Promise.reject(new Error(`attempt ${attempt}`))
       })
-      const resultFn = () => withRetry(fn, { count: 2, delay: 1 })
+      const throwing = () => withRetry(fn, { count: 2, delay: 1 })
 
-      await expect(resultFn()).rejects.toThrow('attempt 3')
+      expect(throwing()).rejects.toThrow('attempt 3')
     })
   })
 
@@ -276,35 +276,35 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(3)
     })
 
-    test('should NOT retry on HttpError with non-retriable status code', async () => {
+    test('should NOT retry on HttpError with non-retriable status code', () => {
       const fn = mock(() => {
         throw new HttpError('HTTP 404', 404)
       })
 
-      const resultFn = () => withRetry(fn, { count: 3, delay: 1, statusCodes: [503, 500] })
+      const throwing = () => withRetry(fn, { count: 3, delay: 1, statusCodes: [503, 500] })
 
-      await expect(resultFn()).rejects.toThrow('HTTP 404')
+      expect(throwing()).rejects.toThrow('HTTP 404')
       expect(fn).toHaveBeenCalledTimes(1)
     })
 
-    test('should use default status codes when not specified', async () => {
+    test('should use default status codes when not specified', () => {
       const fn = mock(() => {
         throw new HttpError('HTTP 500', 500)
       })
 
-      const resultFn = () => withRetry(fn, { count: 2, delay: 1 })
+      const throwing = () => withRetry(fn, { count: 2, delay: 1 })
 
-      await expect(resultFn()).rejects.toThrow('HTTP 500')
+      expect(throwing()).rejects.toThrow('HTTP 500')
       // Should retry because 500 is in default retriable status codes
       expect(fn).toHaveBeenCalledTimes(3)
     })
 
-    test('should retry non-HttpError errors regardless of status codes', async () => {
+    test('should retry non-HttpError errors regardless of status codes', () => {
       const fn = mock(() => Promise.reject(new Error('Network error')))
 
-      const resultFn = () => withRetry(fn, { count: 2, delay: 1, statusCodes: [503] })
+      const throwing = () => withRetry(fn, { count: 2, delay: 1, statusCodes: [503] })
 
-      await expect(resultFn()).rejects.toThrow('Network error')
+      expect(throwing()).rejects.toThrow('Network error')
       // Should retry even though error doesn't have status code
       expect(fn).toHaveBeenCalledTimes(3)
     })
@@ -328,7 +328,7 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(3)
     })
 
-    test('should stop immediately on first non-retriable status code', async () => {
+    test('should stop immediately on first non-retriable status code', () => {
       let attempt = 0
       const fn = mock(() => {
         attempt++
@@ -338,9 +338,9 @@ describe('withRetry', () => {
         throw new HttpError('HTTP 401', 401)
       })
 
-      const resultFn = () => withRetry(fn, { count: 5, delay: 1, statusCodes: [503] })
+      const throwing = () => withRetry(fn, { count: 5, delay: 1, statusCodes: [503] })
 
-      await expect(resultFn()).rejects.toThrow('HTTP 401')
+      expect(throwing()).rejects.toThrow('HTTP 401')
       expect(fn).toHaveBeenCalledTimes(2)
     })
   })
@@ -534,12 +534,12 @@ describe('executeBrowserMechanism', () => {
 
 describe('executeCustomMechanism', () => {
   describe('custom fetch function', () => {
-    test('should throw error when custom fetch not provided', async () => {
+    test('should throw error when custom fetch not provided', () => {
       const config: ScrapeConfig = {}
       const options: RequestOptions = {}
-      const resultFn = () => executeCustomMechanism('https://example.com', config, options)
+      const throwing = () => executeCustomMechanism('https://example.com', config, options)
 
-      await expect(resultFn()).rejects.toThrow('Custom fetch function not provided')
+      expect(throwing()).rejects.toThrow('Custom fetch function not provided')
     })
 
     test('should execute custom fetch function', async () => {
@@ -674,7 +674,7 @@ describe('executeCustomMechanism', () => {
       expect(capturedContext?.response).toEqual(customResponse)
     })
 
-    test('should throw error when validation fails', async () => {
+    test('should throw error when validation fails', () => {
       const config: ScrapeConfig = {
         custom: { fn: async () => ({ status: 'error' }) },
         options: {
@@ -682,9 +682,9 @@ describe('executeCustomMechanism', () => {
         },
       }
       const options: RequestOptions = {}
-      const resultFn = () => executeCustomMechanism('https://example.com', config, options)
+      const throwing = () => executeCustomMechanism('https://example.com', config, options)
 
-      await expect(resultFn()).rejects.toThrow('Response validation failed')
+      expect(throwing()).rejects.toThrow('Response validation failed')
     })
 
     test('should skip validation when validator not provided', async () => {
@@ -700,27 +700,27 @@ describe('executeCustomMechanism', () => {
   })
 
   describe('error handling', () => {
-    test('should throw error when response is null', async () => {
+    test('should throw error when response is null', () => {
       const config: ScrapeConfig = {
         custom: { fn: () => null },
       }
       const options: RequestOptions = {}
-      const resultFn = () => executeCustomMechanism('https://example.com', config, options)
+      const throwing = () => executeCustomMechanism('https://example.com', config, options)
 
-      await expect(resultFn()).rejects.toThrow('No response received from custom fetch function')
+      expect(throwing()).rejects.toThrow('No response received from custom fetch function')
     })
 
-    test('should throw error when response is undefined', async () => {
+    test('should throw error when response is undefined', () => {
       const config: ScrapeConfig = {
         custom: { fn: () => undefined },
       }
       const options: RequestOptions = {}
-      const resultFn = () => executeCustomMechanism('https://example.com', config, options)
+      const throwing = () => executeCustomMechanism('https://example.com', config, options)
 
-      await expect(resultFn()).rejects.toThrow('No response received from custom fetch function')
+      expect(throwing()).rejects.toThrow('No response received from custom fetch function')
     })
 
-    test('should propagate custom fetch errors', async () => {
+    test('should propagate custom fetch errors', () => {
       const config: ScrapeConfig = {
         custom: {
           fn: () => {
@@ -729,12 +729,12 @@ describe('executeCustomMechanism', () => {
         },
       }
       const options: RequestOptions = {}
-      const resultFn = () => executeCustomMechanism('https://example.com', config, options)
+      const throwing = () => executeCustomMechanism('https://example.com', config, options)
 
-      await expect(resultFn()).rejects.toThrow('Custom fetch failed')
+      expect(throwing()).rejects.toThrow('Custom fetch failed')
     })
 
-    test('should handle validation errors', async () => {
+    test('should handle validation errors', () => {
       const config: ScrapeConfig = {
         custom: { fn: () => ({ data: 'test' }) },
         options: {
@@ -744,9 +744,9 @@ describe('executeCustomMechanism', () => {
         },
       }
       const options: RequestOptions = {}
-      const resultFn = () => executeCustomMechanism('https://example.com', config, options)
+      const throwing = () => executeCustomMechanism('https://example.com', config, options)
 
-      await expect(resultFn()).rejects.toThrow('Validation error')
+      expect(throwing()).rejects.toThrow('Validation error')
     })
   })
 })
