@@ -310,13 +310,13 @@ describe('scrape', () => {
       expect(result).toEqual(expected)
     })
 
-    it('should throw error when custom fetch function not provided', () => {
+    it('should throw error when custom fetch function not provided', async () => {
       const throwing = () =>
         scrape('https://example.com/no-fn', {
           strategies: [{ mechanism: 'custom' }],
         })
 
-      expect(throwing()).rejects.toThrow('Custom fetch function not provided')
+      await expect(throwing()).rejects.toThrow('Custom fetch function not provided')
     })
 
     it('should validate custom response', async () => {
@@ -341,7 +341,7 @@ describe('scrape', () => {
       expect(result.mechanism).toBe('custom')
     })
 
-    it('should fail validation when custom response is invalid', () => {
+    it('should fail validation when custom response is invalid', async () => {
       const throwing = () =>
         scrape('https://example.com/invalid', {
           strategies: [{ mechanism: 'custom' }],
@@ -361,7 +361,7 @@ describe('scrape', () => {
           },
         })
 
-      expect(throwing()).rejects.toThrow('Response validation failed')
+      await expect(throwing()).rejects.toThrow('Response validation failed')
     })
 
     it('should retry custom fetch on failure', async () => {
@@ -437,7 +437,7 @@ describe('scrape', () => {
     })
 
     describe('error cases', () => {
-      it('should throw error when all strategies fail', () => {
+      it('should throw error when all strategies fail', async () => {
         server.use(
           http.get('https://example.com/always-fails', () => {
             return HttpResponse.error()
@@ -450,17 +450,17 @@ describe('scrape', () => {
           })
         }
 
-        expect(throwing()).rejects.toThrow()
+        await expect(throwing()).rejects.toThrow()
       })
 
-      it('should throw error when no strategies provided', () => {
+      it('should throw error when no strategies provided', async () => {
         const throwing = () => {
           return scrape('https://example.com/api', {
             strategies: [],
           })
         }
 
-        expect(throwing()).rejects.toThrow('No strategies provided')
+        await expect(throwing()).rejects.toThrow('No strategies provided')
       })
 
       it.todo('should preserve error from last failed strategy', () => {
@@ -566,7 +566,7 @@ describe('scrape', () => {
     })
 
     describe('validation failure', () => {
-      it('should fail when custom validation returns false', () => {
+      it('should fail when custom validation returns false', async () => {
         server.use(
           http.get('https://example.com/blocked', () => {
             return HttpResponse.json({ error: 'blocked' }, { status: 403 })
@@ -587,7 +587,7 @@ describe('scrape', () => {
             strategies: [{ mechanism: 'fetch' }],
           })
 
-        expect(throwing()).rejects.toThrow('Response validation failed')
+        await expect(throwing()).rejects.toThrow('Response validation failed')
       })
 
       it.todo('should continue to next strategy on validation failure (integration test)', () => {
@@ -676,7 +676,7 @@ describe('scrape', () => {
   })
 
   describe('timeout', () => {
-    it('should timeout when request takes too long', () => {
+    it('should timeout when request takes too long', async () => {
       server.use(
         http.get('https://example.com/slow', async () => {
           await new Promise((resolve) => setTimeout(resolve, 200))
@@ -690,7 +690,7 @@ describe('scrape', () => {
           strategies: [{ mechanism: 'fetch' }],
         })
 
-      expect(throwing()).rejects.toThrow()
+      await expect(throwing()).rejects.toThrow()
     })
 
     it.todo('should apply timeout to browser mechanism (integration test)', () => {
@@ -810,7 +810,7 @@ describe('scrape', () => {
           const throwing = () =>
             scrape(server.url.href, { strategies: [{ mechanism: 'browser', useProxy: false }] })
 
-          expect(throwing()).rejects.toThrow(HttpError)
+          await expect(throwing()).rejects.toThrow(HttpError)
           expect(browser.contexts()).toHaveLength(0)
         } finally {
           await closeAllBrowsers()
