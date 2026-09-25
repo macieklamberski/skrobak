@@ -302,13 +302,13 @@ describe('scrape', () => {
       }
     })
 
-    test('should throw error when custom fetch function not provided', async () => {
-      const resultFn = () =>
+    test('should throw error when custom fetch function not provided', () => {
+      const throwing = () =>
         scrape('https://example.com/no-fn', {
           strategies: [{ mechanism: 'custom' }],
         })
 
-      await expect(resultFn()).rejects.toThrow('Custom fetch function not provided')
+      expect(throwing()).rejects.toThrow('Custom fetch function not provided')
     })
 
     test('should validate custom response', async () => {
@@ -333,8 +333,8 @@ describe('scrape', () => {
       expect(result.mechanism).toBe('custom')
     })
 
-    test('should fail validation when custom response is invalid', async () => {
-      const resultFn = () =>
+    test('should fail validation when custom response is invalid', () => {
+      const throwing = () =>
         scrape('https://example.com/invalid', {
           strategies: [{ mechanism: 'custom' }],
           options: {
@@ -353,7 +353,7 @@ describe('scrape', () => {
           },
         })
 
-      await expect(resultFn()).rejects.toThrow('Response validation failed')
+      expect(throwing()).rejects.toThrow('Response validation failed')
     })
 
     test('should retry custom fetch on failure', async () => {
@@ -424,30 +424,30 @@ describe('scrape', () => {
     })
 
     describe('error cases', () => {
-      test('should throw error when all strategies fail', async () => {
+      test('should throw error when all strategies fail', () => {
         server.use(
           http.get('https://example.com/always-fails', () => {
             return HttpResponse.error()
           }),
         )
 
-        const resultFn = () => {
+        const throwing = () => {
           return scrape('https://example.com/always-fails', {
             strategies: [{ mechanism: 'fetch' }],
           })
         }
 
-        await expect(resultFn()).rejects.toThrow()
+        expect(throwing()).rejects.toThrow()
       })
 
-      test('should throw error when no strategies provided', async () => {
-        const resultFn = () => {
+      test('should throw error when no strategies provided', () => {
+        const throwing = () => {
           return scrape('https://example.com/api', {
             strategies: [],
           })
         }
 
-        await expect(resultFn()).rejects.toThrow('No strategies provided')
+        expect(throwing()).rejects.toThrow('No strategies provided')
       })
 
       test.todo('should preserve error from last failed strategy', () => {
@@ -553,14 +553,14 @@ describe('scrape', () => {
     })
 
     describe('validation failure', () => {
-      test('should fail when custom validation returns false', async () => {
+      test('should fail when custom validation returns false', () => {
         server.use(
           http.get('https://example.com/blocked', () => {
             return HttpResponse.json({ error: 'blocked' }, { status: 403 })
           }),
         )
 
-        const resultFn = () =>
+        const throwing = () =>
           scrape('https://example.com/blocked', {
             options: {
               validateResponse: (context) => {
@@ -574,7 +574,7 @@ describe('scrape', () => {
             strategies: [{ mechanism: 'fetch' }],
           })
 
-        await expect(resultFn()).rejects.toThrow('Response validation failed')
+        expect(throwing()).rejects.toThrow('Response validation failed')
       })
 
       test.todo('should continue to next strategy on validation failure (integration test)', () => {
@@ -663,7 +663,7 @@ describe('scrape', () => {
   })
 
   describe('timeout', () => {
-    test('should timeout when request takes too long', async () => {
+    test('should timeout when request takes too long', () => {
       server.use(
         http.get('https://example.com/slow', async () => {
           await new Promise((resolve) => setTimeout(resolve, 200))
@@ -671,13 +671,13 @@ describe('scrape', () => {
         }),
       )
 
-      const resultFn = () =>
+      const throwing = () =>
         scrape('https://example.com/slow', {
           options: { timeout: 50 },
           strategies: [{ mechanism: 'fetch' }],
         })
 
-      await expect(resultFn()).rejects.toThrow()
+      expect(throwing()).rejects.toThrow()
     })
 
     test.todo('should apply timeout to browser mechanism (integration test)', () => {
@@ -792,10 +792,10 @@ describe('scrape', () => {
 
         try {
           const browser = await getBrowser('chromium')
-          const resultFn = () =>
+          const throwing = () =>
             scrape(server.url.href, { strategies: [{ mechanism: 'browser', useProxy: false }] })
 
-          await expect(resultFn()).rejects.toThrow(HttpError)
+          expect(throwing()).rejects.toThrow(HttpError)
           expect(browser.contexts()).toHaveLength(0)
         } finally {
           await closeAllBrowsers()
