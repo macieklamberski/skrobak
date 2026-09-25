@@ -1,0 +1,13 @@
+diff --git a/evasions/user-agent-override/index.js b/evasions/user-agent-override/index.js
+index 0c2d3864f3b041584a447c50c634f2b7b6e372fe..575441021506c9bd7df480fff73c0237d9de33dc 100644
+--- a/evasions/user-agent-override/index.js
++++ b/evasions/user-agent-override/index.js
+@@ -179,7 +179,7 @@ class Plugin extends PuppeteerExtraPlugin {
+ 
+     const client =
+       typeof page._client === 'function' ? page._client() : page._client
+-    client.send('Network.setUserAgentOverride', override)
++    client.send('Network.setUserAgentOverride', override).catch(() => {})
+   }
+ 
+   async beforeLaunch(options) {
