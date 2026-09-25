@@ -47,11 +47,14 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",
     "@types/bun": "^1.4.2",
-    "kvalita": "^1.23.0",
+    "kvalita": "^1.24.0",
     "msw": "^2.15.0",
     "playwright": "^1.63.0",
     "playwright-extra": "^4.3.6",
     "trousse": "^2.2.1",
     "tsdown": "^0.23.0"
+  },
+  "patchedDependencies": {
+    "puppeteer-extra-plugin-stealth@2.11.2": "patches/puppeteer-extra-plugin-stealth@2.11.2.patch"
   }
 }

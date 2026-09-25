@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, describe, expect, test } from 'bun:test'
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'bun:test'
 import { HttpResponse, http } from 'msw'
 import { setupServer } from 'msw/node'
 import { HttpError, type RequestOptions, scrape } from './index.js'
@@ -23,81 +23,85 @@ describe('scrape', () => {
   afterAll(() => server.close())
 
   describe('input validation', () => {
-    test.todo('should throw error when url is empty string', () => {
+    it.todo('should throw error when url is empty string', () => {
       // Throw error when url is empty string
     })
 
-    test.todo('should throw error when url is invalid format', () => {
+    it.todo('should throw error when url is invalid format', () => {
       // Throw error when url is invalid format
     })
 
-    test.todo('should handle URLs with special characters', () => {
+    it.todo('should handle URLs with special characters', () => {
       // Handle URLs with special characters
     })
 
-    test.todo('should handle URLs with query parameters', () => {
+    it.todo('should handle URLs with query parameters', () => {
       // Handle URLs with query parameters
     })
 
-    test.todo('should handle URLs with hash fragments', () => {
+    it.todo('should handle URLs with hash fragments', () => {
       // Handle URLs with hash fragments
     })
 
-    test.todo('should accept valid http URLs', () => {
+    it.todo('should accept valid http URLs', () => {
       // Accept valid http URLs
     })
 
-    test.todo('should accept valid https URLs', () => {
+    it.todo('should accept valid https URLs', () => {
       // Accept valid https URLs
     })
 
-    test.todo('should throw error when config is null/undefined', () => {
+    it.todo('should throw error when config is null/undefined', () => {
       // Throw error when config is null/undefined
     })
 
-    test.todo('should throw error when strategies array is null', () => {
+    it.todo('should throw error when strategies array is null', () => {
       // Throw error when strategies array is null
     })
 
-    test.todo('should throw error when strategies array is undefined', () => {
+    it.todo('should throw error when strategies array is undefined', () => {
       // Throw error when strategies array is undefined
     })
   })
 
   describe('fetch mechanism', () => {
     describe('basic requests', () => {
-      test('should successfully fetch JSON response', async () => {
+      it('should successfully fetch JSON response', async () => {
         const result = await scrape('https://example.com/api', {
           strategies: [{ mechanism: 'fetch' }],
         })
 
         expect(result.mechanism).toBe('fetch')
 
-        if (result.mechanism === 'fetch') {
-          const data = await result.response.json()
-          expect(data).toEqual({ data: 'test' })
+        if (result.mechanism !== 'fetch') {
+          throw new Error('Expected a fetch result')
         }
+
+        const data = await result.response.json()
+        expect(data).toEqual({ data: 'test' })
       })
 
-      test('should successfully parse HTML with Cheerio', async () => {
+      it('should successfully parse HTML with Cheerio', async () => {
         const result = await scrape('https://example.com/html', {
           strategies: [{ mechanism: 'fetch' }],
         })
 
         expect(result.mechanism).toBe('fetch')
 
-        if (result.mechanism === 'fetch') {
-          const title = result.$('title').text()
-          const h1 = result.$('h1').text()
-
-          expect(title).toBe('Test')
-          expect(h1).toBe('Hello')
+        if (result.mechanism !== 'fetch') {
+          throw new Error('Expected a fetch result')
         }
+
+        const title = result.$('title').text()
+        const h1 = result.$('h1').text()
+
+        expect(title).toBe('Test')
+        expect(h1).toBe('Hello')
       })
     })
 
     describe('configuration', () => {
-      test('should use custom user agent when provided', async () => {
+      it('should use custom user agent when provided', async () => {
         let capturedUserAgent: string | undefined
 
         server.use(
@@ -115,7 +119,7 @@ describe('scrape', () => {
         expect(capturedUserAgent).toBe('CustomBot/1.0')
       })
 
-      test('should use custom headers when provided', async () => {
+      it('should use custom headers when provided', async () => {
         let capturedHeaders: Record<string, string> = {}
 
         server.use(
@@ -144,7 +148,7 @@ describe('scrape', () => {
     })
 
     describe('retry', () => {
-      test('should handle fetch failure and retry', async () => {
+      it('should handle fetch failure and retry', async () => {
         let callCount = 0
 
         server.use(
@@ -168,27 +172,27 @@ describe('scrape', () => {
     })
 
     describe('HTTP status codes', () => {
-      test.todo('should handle successful responses (2xx)', () => {
+      it.todo('should handle successful responses (2xx)', () => {
         // Handle successful responses (2xx)
       })
 
-      test.todo('should handle client errors (4xx)', () => {
+      it.todo('should handle client errors (4xx)', () => {
         // Handle client errors (4xx)
       })
 
-      test.todo('should handle server errors (5xx)', () => {
+      it.todo('should handle server errors (5xx)', () => {
         // Handle server errors (5xx)
       })
     })
 
     describe('network errors', () => {
-      test.todo('should handle network errors (integration test)', () => {
+      it.todo('should handle network errors (integration test)', () => {
         // Handle network errors (integration test)
       })
     })
 
     describe('response handling', () => {
-      test.todo('should handle different content types (JSON, HTML, XML)', () => {
+      it.todo('should handle different content types (JSON, HTML, XML)', () => {
         // Handle different content types (JSON, HTML, XML)
       })
     })
@@ -199,37 +203,37 @@ describe('scrape', () => {
 
   describe('browser mechanism', () => {
     describe('page loading', () => {
-      test.todo('should successfully load page with browser (integration test)', () => {
+      it.todo('should successfully load page with browser (integration test)', () => {
         // Successfully load page with browser (integration test)
       })
 
-      test.todo('should execute JavaScript in browser (integration test)', () => {
+      it.todo('should execute JavaScript in browser (integration test)', () => {
         // Execute JavaScript in browser (integration test)
       })
 
-      test.todo('should handle dynamic content loading (integration test)', () => {
+      it.todo('should handle dynamic content loading (integration test)', () => {
         // Handle dynamic content loading (integration test)
       })
     })
 
     describe('wait conditions', () => {
-      test.todo('should respect waitUntil configuration (integration test)', () => {
+      it.todo('should respect waitUntil configuration (integration test)', () => {
         // Respect waitUntil configuration (integration test)
       })
     })
 
     describe('resource filtering', () => {
-      test.todo('should block specific resource types (integration test)', () => {
+      it.todo('should block specific resource types (integration test)', () => {
         // Block specific resource types (integration test)
       })
     })
 
     describe('error handling', () => {
-      test.todo('should handle browser navigation timeout', () => {
+      it.todo('should handle browser navigation timeout', () => {
         // Handle browser navigation timeout
       })
 
-      test.todo('should handle page errors gracefully', () => {
+      it.todo('should handle page errors gracefully', () => {
         // Handle page errors gracefully
       })
     })
@@ -240,7 +244,7 @@ describe('scrape', () => {
   })
 
   describe('custom mechanism', () => {
-    test('should execute custom fetch function', async () => {
+    it('should execute custom fetch function', async () => {
       const result = await scrape('https://example.com/custom', {
         strategies: [{ mechanism: 'custom' }],
         custom: {
@@ -250,17 +254,18 @@ describe('scrape', () => {
         },
       })
 
-      expect(result.mechanism).toBe('custom')
-
-      if (result.mechanism === 'custom') {
-        expect(result.response).toEqual({
+      const expected: typeof result = {
+        mechanism: 'custom',
+        response: {
           customData: 'test',
           url: 'https://example.com/custom',
-        })
+        },
       }
+
+      expect(result).toEqual(expected)
     })
 
-    test('should pass url and options to custom fetch function', async () => {
+    it('should pass url and options to custom fetch function', async () => {
       let capturedUrl: string | undefined
       let capturedOptions: RequestOptions | undefined
 
@@ -284,7 +289,7 @@ describe('scrape', () => {
       expect(capturedOptions?.timeout).toBe(5000)
     })
 
-    test('should return custom response type', async () => {
+    it('should return custom response type', async () => {
       const result = await scrape('https://example.com/typed', {
         strategies: [{ mechanism: 'custom' }],
         custom: {
@@ -294,15 +299,18 @@ describe('scrape', () => {
         },
       })
 
-      expect(result.mechanism).toBe('custom')
-
-      if (result.mechanism === 'custom') {
-        expect(result.response.items).toEqual(['a', 'b', 'c'])
-        expect(result.response.count).toBe(3)
+      const expected: typeof result = {
+        mechanism: 'custom',
+        response: {
+          items: ['a', 'b', 'c'],
+          count: 3,
+        },
       }
+
+      expect(result).toEqual(expected)
     })
 
-    test('should throw error when custom fetch function not provided', () => {
+    it('should throw error when custom fetch function not provided', () => {
       const throwing = () =>
         scrape('https://example.com/no-fn', {
           strategies: [{ mechanism: 'custom' }],
@@ -311,7 +319,7 @@ describe('scrape', () => {
       expect(throwing()).rejects.toThrow('Custom fetch function not provided')
     })
 
-    test('should validate custom response', async () => {
+    it('should validate custom response', async () => {
       const result = await scrape('https://example.com/validated', {
         strategies: [{ mechanism: 'custom' }],
         options: {
@@ -333,7 +341,7 @@ describe('scrape', () => {
       expect(result.mechanism).toBe('custom')
     })
 
-    test('should fail validation when custom response is invalid', () => {
+    it('should fail validation when custom response is invalid', () => {
       const throwing = () =>
         scrape('https://example.com/invalid', {
           strategies: [{ mechanism: 'custom' }],
@@ -356,7 +364,7 @@ describe('scrape', () => {
       expect(throwing()).rejects.toThrow('Response validation failed')
     })
 
-    test('should retry custom fetch on failure', async () => {
+    it('should retry custom fetch on failure', async () => {
       let callCount = 0
 
       const result = await scrape('https://example.com/retry', {
@@ -375,19 +383,22 @@ describe('scrape', () => {
         },
       })
 
-      expect(result.mechanism).toBe('custom')
-      expect(callCount).toBe(3)
-
-      if (result.mechanism === 'custom') {
-        expect(result.response.success).toBe(true)
-        expect(result.response.attempt).toBe(3)
+      const expected: typeof result = {
+        mechanism: 'custom',
+        response: {
+          success: true,
+          attempt: 3,
+        },
       }
+
+      expect(result).toEqual(expected)
+      expect(callCount).toBe(3)
     })
   })
 
   describe('strategy cascade', () => {
     describe('success cases', () => {
-      test('should use first successful strategy', async () => {
+      it('should use first successful strategy', async () => {
         server.use(
           http.get('https://example.com/cascade', () => {
             return HttpResponse.json({ from: 'fetch' })
@@ -400,31 +411,33 @@ describe('scrape', () => {
 
         expect(result.mechanism).toBe('fetch')
 
-        if (result.mechanism === 'fetch') {
-          const data = await result.response.json()
-          expect(data.from).toBe('fetch')
+        if (result.mechanism !== 'fetch') {
+          throw new Error('Expected a fetch result')
         }
+
+        const data = await result.response.json()
+        expect(data.from).toBe('fetch')
       })
 
-      test.todo('should use second strategy when first fails', () => {
+      it.todo('should use second strategy when first fails', () => {
         // Use second strategy when first fails
       })
 
-      test.todo('should use third strategy when first two fail', () => {
+      it.todo('should use third strategy when first two fail', () => {
         // Use third strategy when first two fail
       })
 
-      test.todo('should not execute remaining strategies after success', () => {
+      it.todo('should not execute remaining strategies after success', () => {
         // Not execute remaining strategies after success
       })
 
-      test.todo('should handle mixed strategy types (fetch, browser, custom)', () => {
+      it.todo('should handle mixed strategy types (fetch, browser, custom)', () => {
         // Handle mixed strategy types (fetch, browser, custom)
       })
     })
 
     describe('error cases', () => {
-      test('should throw error when all strategies fail', () => {
+      it('should throw error when all strategies fail', () => {
         server.use(
           http.get('https://example.com/always-fails', () => {
             return HttpResponse.error()
@@ -440,7 +453,7 @@ describe('scrape', () => {
         expect(throwing()).rejects.toThrow()
       })
 
-      test('should throw error when no strategies provided', () => {
+      it('should throw error when no strategies provided', () => {
         const throwing = () => {
           return scrape('https://example.com/api', {
             strategies: [],
@@ -450,49 +463,49 @@ describe('scrape', () => {
         expect(throwing()).rejects.toThrow('No strategies provided')
       })
 
-      test.todo('should preserve error from last failed strategy', () => {
+      it.todo('should preserve error from last failed strategy', () => {
         // Preserve error from last failed strategy
       })
     })
 
     describe('hooks', () => {
-      test.todo('should call onStrategyFailed hook when strategy fails', () => {
+      it.todo('should call onStrategyFailed hook when strategy fails', () => {
         // Call onStrategyFailed hook when strategy fails
       })
 
-      test.todo('should pass correct context to onStrategyFailed (error, strategy, strategyIndex, totalStrategies)', () => {
+      it.todo('should pass correct context to onStrategyFailed (error, strategy, strategyIndex, totalStrategies)', () => {
         // Pass correct context to onStrategyFailed (error, strategy, strategyIndex, totalStrategies)
       })
 
-      test.todo('should call onStrategyFailed for each failed strategy', () => {
+      it.todo('should call onStrategyFailed for each failed strategy', () => {
         // Call onStrategyFailed for each failed strategy
       })
 
-      test.todo('should not call onStrategyFailed when strategy succeeds', () => {
+      it.todo('should not call onStrategyFailed when strategy succeeds', () => {
         // Not call onStrategyFailed when strategy succeeds
       })
 
-      test.todo('should call onAllStrategiesFailed hook when all strategies fail', () => {
+      it.todo('should call onAllStrategiesFailed hook when all strategies fail', () => {
         // Call onAllStrategiesFailed hook when all strategies fail
       })
 
-      test.todo('should pass correct context to onAllStrategiesFailed (lastError, strategies, totalAttempts)', () => {
+      it.todo('should pass correct context to onAllStrategiesFailed (lastError, strategies, totalAttempts)', () => {
         // Pass correct context to onAllStrategiesFailed (lastError, strategies, totalAttempts)
       })
 
-      test.todo('should not call onAllStrategiesFailed when any strategy succeeds', () => {
+      it.todo('should not call onAllStrategiesFailed when any strategy succeeds', () => {
         // Not call onAllStrategiesFailed when any strategy succeeds
       })
 
-      test.todo('should call both onStrategyFailed and onAllStrategiesFailed for last failed strategy', () => {
+      it.todo('should call both onStrategyFailed and onAllStrategiesFailed for last failed strategy', () => {
         // Call both onStrategyFailed and onAllStrategiesFailed for last failed strategy
       })
 
-      test.todo('should handle hooks throwing errors gracefully', () => {
+      it.todo('should handle hooks throwing errors gracefully', () => {
         // Handle hooks throwing errors gracefully
       })
 
-      test.todo('should not call hooks when not configured', () => {
+      it.todo('should not call hooks when not configured', () => {
         // Not call hooks when not configured
       })
     })
@@ -500,7 +513,7 @@ describe('scrape', () => {
 
   describe('custom validation', () => {
     describe('validation success', () => {
-      test('should validate response with custom function', async () => {
+      it('should validate response with custom function', async () => {
         server.use(
           http.get('https://example.com/validated', () => {
             return HttpResponse.json({ data: 'test' }, { status: 200 })
@@ -523,7 +536,7 @@ describe('scrape', () => {
         expect(result.mechanism).toBe('fetch')
       })
 
-      test('should validate response with custom function where second strategy is valid', async () => {
+      it('should validate response with custom function where second strategy is valid', async () => {
         server.use(
           http.get('https://example.com/validated', () => {
             return HttpResponse.json({ data: 'test' }, { status: 200 })
@@ -553,7 +566,7 @@ describe('scrape', () => {
     })
 
     describe('validation failure', () => {
-      test('should fail when custom validation returns false', () => {
+      it('should fail when custom validation returns false', () => {
         server.use(
           http.get('https://example.com/blocked', () => {
             return HttpResponse.json({ error: 'blocked' }, { status: 403 })
@@ -577,17 +590,17 @@ describe('scrape', () => {
         expect(throwing()).rejects.toThrow('Response validation failed')
       })
 
-      test.todo('should continue to next strategy on validation failure (integration test)', () => {
+      it.todo('should continue to next strategy on validation failure (integration test)', () => {
         // Continue to next strategy on validation failure (integration test)
       })
 
-      test.todo('should handle validation function throwing error', () => {
+      it.todo('should handle validation function throwing error', () => {
         // Handle validation function throwing error
       })
     })
 
     describe('mechanism context', () => {
-      test('should pass mechanism to validateResponse function', async () => {
+      it('should pass mechanism to validateResponse function', async () => {
         let capturedMechanism: string | undefined
 
         server.use(
@@ -619,51 +632,51 @@ describe('scrape', () => {
   })
 
   describe('user agent configuration', () => {
-    test.todo('should use user agent from config (simple integration test)', () => {
+    it.todo('should use user agent from config (simple integration test)', () => {
       // Use user agent from config (simple integration test)
     })
     // Note: Detailed rotation/selection logic tested in getRandomFrom() unit tests
   })
 
   describe('viewport configuration', () => {
-    test.todo('should apply viewport from config to browser mechanism (simple integration test)', () => {
+    it.todo('should apply viewport from config to browser mechanism (simple integration test)', () => {
       // Apply viewport from config to browser mechanism (simple integration test)
     })
     // Note: Detailed rotation/selection logic tested in getRandomFrom() unit tests
   })
 
   describe('header configuration', () => {
-    test.todo('should merge custom headers with default headers', () => {
+    it.todo('should merge custom headers with default headers', () => {
       // Merge custom headers with default headers
     })
 
-    test.todo('should override default headers with custom headers', () => {
+    it.todo('should override default headers with custom headers', () => {
       // Override default headers with custom headers
     })
 
-    test.todo('should handle empty headers object', () => {
+    it.todo('should handle empty headers object', () => {
       // Handle empty headers object
     })
 
-    test.todo('should handle null/undefined header values', () => {
+    it.todo('should handle null/undefined header values', () => {
       // Handle null/undefined header values
     })
 
-    test.todo('should handle case-insensitive header names', () => {
+    it.todo('should handle case-insensitive header names', () => {
       // Handle case-insensitive header names
     })
 
-    test.todo('should preserve header order', () => {
+    it.todo('should preserve header order', () => {
       // Preserve header order
     })
 
-    test.todo('should handle special characters in header values', () => {
+    it.todo('should handle special characters in header values', () => {
       // Handle special characters in header values
     })
   })
 
   describe('timeout', () => {
-    test('should timeout when request takes too long', () => {
+    it('should timeout when request takes too long', () => {
       server.use(
         http.get('https://example.com/slow', async () => {
           await new Promise((resolve) => setTimeout(resolve, 200))
@@ -680,22 +693,22 @@ describe('scrape', () => {
       expect(throwing()).rejects.toThrow()
     })
 
-    test.todo('should apply timeout to browser mechanism (integration test)', () => {
+    it.todo('should apply timeout to browser mechanism (integration test)', () => {
       // Apply timeout to browser mechanism (integration test)
     })
     // Note: Timeout edge cases (zero, negative, huge) tested in strategy.test.ts unit tests
   })
 
   describe('retry mechanism', () => {
-    test.todo('should retry on failure and succeed (simple integration test)', () => {
+    it.todo('should retry on failure and succeed (simple integration test)', () => {
       // Retry on failure and succeed (simple integration test)
     })
 
-    test.todo('should propagate last error after all retries', () => {
+    it.todo('should propagate last error after all retries', () => {
       // Propagate last error after all retries
     })
 
-    test.todo('should apply retry to each strategy independently', () => {
+    it.todo('should apply retry to each strategy independently', () => {
       // Apply retry to each strategy independently
     })
     // Note: Backoff strategy details (exponential/linear/constant) tested in:
@@ -704,7 +717,7 @@ describe('scrape', () => {
   })
 
   describe('cheerio lazy loading', () => {
-    test('should not load cheerio until $ is accessed', async () => {
+    it('should not load cheerio until $ is accessed', async () => {
       server.use(
         http.get('https://example.com/lazy-html', () => {
           return new HttpResponse('<html><body><p>Test</p></body></html>', {
@@ -719,19 +732,21 @@ describe('scrape', () => {
 
       expect(result.mechanism).toBe('fetch')
 
-      if (result.mechanism === 'fetch') {
-        expect(typeof result.$).toBe('function')
-
-        const text = result.$('p').text()
-        expect(text).toBe('Test')
+      if (result.mechanism !== 'fetch') {
+        throw new Error('Expected a fetch result')
       }
+
+      expect(typeof result.$).toBe('function')
+
+      const text = result.$('p').text()
+      expect(text).toBe('Test')
     })
 
-    test.todo('should parse complex HTML structures (integration test)', () => {
+    it.todo('should parse complex HTML structures (integration test)', () => {
       // Parse complex HTML structures (integration test)
     })
 
-    test.todo('should support CSS selectors (integration test)', () => {
+    it.todo('should support CSS selectors (integration test)', () => {
       // Support CSS selectors (integration test)
     })
 
@@ -740,39 +755,39 @@ describe('scrape', () => {
 
   describe('error handling', () => {
     describe('error messages', () => {
-      test.todo('should throw descriptive error messages', () => {
+      it.todo('should throw descriptive error messages', () => {
         // Throw descriptive error messages
       })
 
-      test.todo('should preserve error stack traces', () => {
+      it.todo('should preserve error stack traces', () => {
         // Preserve error stack traces
       })
     })
 
     describe('error types', () => {
-      test.todo('should handle synchronous errors', () => {
+      it.todo('should handle synchronous errors', () => {
         // Handle synchronous errors
       })
 
-      test.todo('should handle asynchronous errors', () => {
+      it.todo('should handle asynchronous errors', () => {
         // Handle asynchronous errors
       })
 
-      test.todo('should handle unexpected error types', () => {
+      it.todo('should handle unexpected error types', () => {
         // Handle unexpected error types
       })
     })
 
     describe('function errors', () => {
-      test.todo('should handle errors in validation function', () => {
+      it.todo('should handle errors in validation function', () => {
         // Handle errors in validation function
       })
 
-      test.todo('should handle errors in custom fetch function', () => {
+      it.todo('should handle errors in custom fetch function', () => {
         // Handle errors in custom fetch function
       })
 
-      test.todo('should handle errors in browser navigation', () => {
+      it.todo('should handle errors in browser navigation', () => {
         // Handle errors in browser navigation
       })
     })
@@ -780,11 +795,11 @@ describe('scrape', () => {
 
   describe('memory and performance', () => {
     describe('resource cleanup', () => {
-      test.todo('should cleanup browser context after success', () => {
+      it.todo('should cleanup browser context after success', () => {
         // Cleanup browser context after success
       })
 
-      test('should cleanup browser context after failure', async () => {
+      it('should cleanup browser context after failure', async () => {
         const server = Bun.serve({
           port: 0,
           fetch: () => new Response('not found', { status: 404 }),
@@ -805,11 +820,11 @@ describe('scrape', () => {
     })
 
     describe('concurrency', () => {
-      test.todo('should handle concurrent scrape() calls', () => {
+      it.todo('should handle concurrent scrape() calls', () => {
         // Handle concurrent scrape() calls
       })
 
-      test.todo('should handle sequential scrape() calls', () => {
+      it.todo('should handle sequential scrape() calls', () => {
         // Handle sequential scrape() calls
       })
     })
