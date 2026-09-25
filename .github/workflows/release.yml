@@ -7,8 +7,11 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
 
+  package:
+    uses: ./.github/workflows/package.yml
+
   release:
-    needs: test
+    needs: [test, package]
     permissions:
       contents: write
       issues: write
