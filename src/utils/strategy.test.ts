@@ -1,4 +1,4 @@
-import { describe, expect, mock, test } from 'bun:test'
+import { describe, expect, it, mock } from 'bun:test'
 import { HttpError } from '../types/error.js'
 import type { RequestOptions, ScrapeConfig } from '../types/index.js'
 import type { ValidateResponseContext } from '../types/validate.js'
@@ -11,73 +11,73 @@ import {
 
 describe('calculateRetryDelay', () => {
   describe('exponential backoff', () => {
-    test('should calculate delay for retry 0', () => {
+    it('should calculate delay for retry 0', () => {
       expect(calculateRetryDelay(0, 1000, 'exponential')).toBe(1000)
     })
 
-    test('should calculate delay for retry 1', () => {
+    it('should calculate delay for retry 1', () => {
       expect(calculateRetryDelay(1, 1000, 'exponential')).toBe(2000)
     })
 
-    test('should calculate delay for retry 2', () => {
+    it('should calculate delay for retry 2', () => {
       expect(calculateRetryDelay(2, 1000, 'exponential')).toBe(4000)
     })
 
-    test('should calculate delay for retry 5', () => {
+    it('should calculate delay for retry 5', () => {
       expect(calculateRetryDelay(5, 1000, 'exponential')).toBe(32000)
     })
 
-    test('should use base delay correctly', () => {
+    it('should use base delay correctly', () => {
       expect(calculateRetryDelay(3, 500, 'exponential')).toBe(4000)
       expect(calculateRetryDelay(2, 2000, 'exponential')).toBe(8000)
     })
   })
 
   describe('linear backoff', () => {
-    test('should calculate delay for retry 0', () => {
+    it('should calculate delay for retry 0', () => {
       expect(calculateRetryDelay(0, 1000, 'linear')).toBe(1000)
     })
 
-    test('should calculate delay for retry 1', () => {
+    it('should calculate delay for retry 1', () => {
       expect(calculateRetryDelay(1, 1000, 'linear')).toBe(2000)
     })
 
-    test('should calculate delay for retry 2', () => {
+    it('should calculate delay for retry 2', () => {
       expect(calculateRetryDelay(2, 1000, 'linear')).toBe(3000)
     })
 
-    test('should calculate delay for retry 5', () => {
+    it('should calculate delay for retry 5', () => {
       expect(calculateRetryDelay(5, 1000, 'linear')).toBe(6000)
     })
 
-    test('should use base delay correctly', () => {
+    it('should use base delay correctly', () => {
       expect(calculateRetryDelay(3, 500, 'linear')).toBe(2000)
       expect(calculateRetryDelay(2, 2000, 'linear')).toBe(6000)
     })
   })
 
   describe('constant delay', () => {
-    test('should return same delay for all retries', () => {
+    it('should return same delay for all retries', () => {
       expect(calculateRetryDelay(0, 1000, 'constant')).toBe(1000)
       expect(calculateRetryDelay(1, 1000, 'constant')).toBe(1000)
       expect(calculateRetryDelay(5, 1000, 'constant')).toBe(1000)
       expect(calculateRetryDelay(100, 1000, 'constant')).toBe(1000)
     })
 
-    test('should return base delay', () => {
+    it('should return base delay', () => {
       expect(calculateRetryDelay(0, 500, 'constant')).toBe(500)
       expect(calculateRetryDelay(10, 2000, 'constant')).toBe(2000)
     })
   })
 
   describe('edge cases', () => {
-    test('should handle zero base delay', () => {
+    it('should handle zero base delay', () => {
       expect(calculateRetryDelay(0, 0, 'exponential')).toBe(0)
       expect(calculateRetryDelay(5, 0, 'linear')).toBe(0)
       expect(calculateRetryDelay(3, 0, 'constant')).toBe(0)
     })
 
-    test('should handle negative retry number', () => {
+    it('should handle negative retry number', () => {
       // 2^-1 = 0.5
       expect(calculateRetryDelay(-1, 1000, 'exponential')).toBe(500)
       // -1 + 1 = 0
@@ -85,7 +85,7 @@ describe('calculateRetryDelay', () => {
       expect(calculateRetryDelay(-1, 1000, 'constant')).toBe(1000)
     })
 
-    test('should handle unknown retry type (fallback to exponential)', () => {
+    it('should handle unknown retry type (fallback to exponential)', () => {
       // @ts-expect-error Testing invalid retry type
       expect(calculateRetryDelay(2, 1000, 'unknown')).toBe(4000)
       // @ts-expect-error Testing invalid retry type
@@ -96,14 +96,14 @@ describe('calculateRetryDelay', () => {
 
 describe('getRandomFrom', () => {
   describe('random selection', () => {
-    test('should return random item from array', () => {
+    it('should return random item from array', () => {
       const items = ['a', 'b', 'c', 'd', 'e']
       const result = getRandomFrom(items)
 
       expect(items).toContain(result)
     })
 
-    test('should return item from single element array', () => {
+    it('should return item from single element array', () => {
       const items = ['only-item']
       const result = getRandomFrom(items)
 
@@ -112,19 +112,19 @@ describe('getRandomFrom', () => {
   })
 
   describe('edge cases', () => {
-    test('should return undefined for empty array', () => {
+    it('should return undefined for empty array', () => {
       const result = getRandomFrom([])
 
       expect(result).toBeUndefined()
     })
 
-    test('should return undefined for undefined input', () => {
+    it('should return undefined for undefined input', () => {
       const result = getRandomFrom(undefined)
 
       expect(result).toBeUndefined()
     })
 
-    test('should handle array with null/undefined elements', () => {
+    it('should handle array with null/undefined elements', () => {
       const items = [null, undefined, 'valid', null]
       const result = getRandomFrom(items)
 
@@ -135,7 +135,7 @@ describe('getRandomFrom', () => {
 
 describe('withRetry', () => {
   describe('retry logic', () => {
-    test('should execute function without retry when count is 0', async () => {
+    it('should execute function without retry when count is 0', async () => {
       const fn = mock(() => Promise.resolve('success'))
       const result = await withRetry(fn, { count: 0 })
 
@@ -143,7 +143,7 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(1)
     })
 
-    test('should execute function without retry when not configured', async () => {
+    it('should execute function without retry when not configured', async () => {
       const fn = mock(() => Promise.resolve('success'))
       const result = await withRetry(fn)
 
@@ -151,7 +151,7 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(1)
     })
 
-    test('should return result on first success', async () => {
+    it('should return result on first success', async () => {
       const fn = mock(() => Promise.resolve('success'))
       const result = await withRetry(fn, { count: 3 })
 
@@ -159,7 +159,7 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(1)
     })
 
-    test('should return result on retry success', async () => {
+    it('should return result on retry success', async () => {
       let attempt = 0
       const fn = mock(() => {
         attempt++
@@ -172,7 +172,7 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(3)
     })
 
-    test('should retry specified number of times', async () => {
+    it('should retry specified number of times', async () => {
       const fn = mock(() => Promise.reject(new Error('fail')))
 
       try {
@@ -184,7 +184,7 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(4)
     })
 
-    test('should throw last error after all retries', () => {
+    it('should throw last error after all retries', () => {
       const fn = mock(() => Promise.reject(new Error('persistent failure')))
       const throwing = () => withRetry(fn, { count: 2, delay: 1 })
 
@@ -193,43 +193,43 @@ describe('withRetry', () => {
   })
 
   describe('hooks', () => {
-    test.todo('should call onRetryAttempt hook when retry occurs', () => {
+    it.todo('should call onRetryAttempt hook when retry occurs', () => {
       // Call onRetryAttempt hook when retry occurs
     })
 
-    test.todo('should pass correct context to onRetryAttempt (error, attempt, maxAttempts, nextRetryDelay, retryConfig)', () => {
+    it.todo('should pass correct context to onRetryAttempt (error, attempt, maxAttempts, nextRetryDelay, retryConfig)', () => {
       // Pass correct context to onRetryAttempt (error, attempt, maxAttempts, nextRetryDelay, retryConfig)
     })
 
-    test.todo('should not call onRetryAttempt on first attempt', () => {
+    it.todo('should not call onRetryAttempt on first attempt', () => {
       // Not call onRetryAttempt on first attempt
     })
 
-    test.todo('should call onRetryAttempt multiple times for multiple retries', () => {
+    it.todo('should call onRetryAttempt multiple times for multiple retries', () => {
       // Call onRetryAttempt multiple times for multiple retries
     })
 
-    test.todo('should call onRetryExhausted hook when all retries fail', () => {
+    it.todo('should call onRetryExhausted hook when all retries fail', () => {
       // Call onRetryExhausted hook when all retries fail
     })
 
-    test.todo('should pass correct context to onRetryExhausted (error, totalAttempts, retryConfig)', () => {
+    it.todo('should pass correct context to onRetryExhausted (error, totalAttempts, retryConfig)', () => {
       // Pass correct context to onRetryExhausted (error, totalAttempts, retryConfig)
     })
 
-    test.todo('should not call onRetryExhausted when retry succeeds', () => {
+    it.todo('should not call onRetryExhausted when retry succeeds', () => {
       // Not call onRetryExhausted when retry succeeds
     })
 
-    test.todo('should not call onRetryExhausted when no retries configured', () => {
+    it.todo('should not call onRetryExhausted when no retries configured', () => {
       // Not call onRetryExhausted when no retries configured
     })
 
-    test.todo('should handle hooks throwing errors gracefully', () => {
+    it.todo('should handle hooks throwing errors gracefully', () => {
       // Handle hooks throwing errors gracefully
     })
 
-    test.todo('should not call hooks when retries not configured', () => {
+    it.todo('should not call hooks when retries not configured', () => {
       // Not call hooks when retries not configured
     })
   })
@@ -239,7 +239,7 @@ describe('withRetry', () => {
   })
 
   describe('error handling', () => {
-    test('should retry on any error', () => {
+    it('should retry on any error', () => {
       const fn = mock(() => Promise.reject('string error'))
       const throwing = () => withRetry(fn, { count: 1, delay: 1 })
 
@@ -247,7 +247,7 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(2)
     })
 
-    test('should propagate last error', () => {
+    it('should propagate last error', () => {
       let attempt = 0
       const fn = mock(() => {
         attempt++
@@ -260,7 +260,7 @@ describe('withRetry', () => {
   })
 
   describe('status code handling', () => {
-    test('should retry on HttpError with retriable status code', async () => {
+    it('should retry on HttpError with retriable status code', async () => {
       let attempt = 0
       const fn = mock(() => {
         attempt++
@@ -276,7 +276,7 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(3)
     })
 
-    test('should NOT retry on HttpError with non-retriable status code', () => {
+    it('should NOT retry on HttpError with non-retriable status code', () => {
       const fn = mock(() => {
         throw new HttpError('HTTP 404', 404)
       })
@@ -287,7 +287,7 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(1)
     })
 
-    test('should use default status codes when not specified', () => {
+    it('should use default status codes when not specified', () => {
       const fn = mock(() => {
         throw new HttpError('HTTP 500', 500)
       })
@@ -299,7 +299,7 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(3)
     })
 
-    test('should retry non-HttpError errors regardless of status codes', () => {
+    it('should retry non-HttpError errors regardless of status codes', () => {
       const fn = mock(() => Promise.reject(new Error('Network error')))
 
       const throwing = () => withRetry(fn, { count: 2, delay: 1, statusCodes: [503] })
@@ -309,7 +309,7 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(3)
     })
 
-    test('should retry on multiple different retriable status codes', async () => {
+    it('should retry on multiple different retriable status codes', async () => {
       let attempt = 0
       const fn = mock(() => {
         attempt++
@@ -328,7 +328,7 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(3)
     })
 
-    test('should stop immediately on first non-retriable status code', () => {
+    it('should stop immediately on first non-retriable status code', () => {
       let attempt = 0
       const fn = mock(() => {
         attempt++
@@ -348,85 +348,85 @@ describe('withRetry', () => {
 
 describe('executeFetchMechanism', () => {
   describe('request construction', () => {
-    test.todo('should construct fetch request with url', () => {
+    it.todo('should construct fetch request with url', () => {
       // Construct fetch request with url
     })
 
-    test.todo('should set headers from options', () => {
+    it.todo('should set headers from options', () => {
       // Set headers from options
     })
 
-    test.todo('should set user agent header', () => {
+    it.todo('should set user agent header', () => {
       // Set user agent header
     })
 
-    test.todo('should set abort signal for timeout', () => {
+    it.todo('should set abort signal for timeout', () => {
       // Set abort signal for timeout
     })
 
-    test.todo('should compose fetch options with proxy', () => {
+    it.todo('should compose fetch options with proxy', () => {
       // Compose fetch options with proxy
     })
 
-    test.todo('should not set proxy when not provided', () => {
+    it.todo('should not set proxy when not provided', () => {
       // Not set proxy when not provided
     })
   })
 
   describe('response handling', () => {
-    test.todo('should return fetch response', () => {
+    it.todo('should return fetch response', () => {
       // Return fetch response
     })
 
-    test.todo('should throw error when response is null', () => {
+    it.todo('should throw error when response is null', () => {
       // Throw error when response is null
     })
 
-    test.todo('should clone response for cheerio', () => {
+    it.todo('should clone response for cheerio', () => {
       // Clone response for cheerio
     })
 
-    test.todo('should extract HTML text from response', () => {
+    it.todo('should extract HTML text from response', () => {
       // Extract HTML text from response
     })
   })
 
   describe('validation', () => {
-    test.todo('should validate response when validator provided', () => {
+    it.todo('should validate response when validator provided', () => {
       // Validate response when validator provided
     })
 
-    test.todo('should pass mechanism and response to validator', () => {
+    it.todo('should pass mechanism and response to validator', () => {
       // Pass mechanism and response to validator
     })
 
-    test.todo('should throw error when validation fails', () => {
+    it.todo('should throw error when validation fails', () => {
       // Throw error when validation fails
     })
 
-    test.todo('should skip validation when validator not provided', () => {
+    it.todo('should skip validation when validator not provided', () => {
       // Skip validation when validator not provided
     })
   })
 
   describe('cheerio lazy loading', () => {
-    test.todo('should create getter for $ property', () => {
+    it.todo('should create getter for $ property', () => {
       // Create getter for $ property
     })
 
-    test.todo('should not load cheerio immediately', () => {
+    it.todo('should not load cheerio immediately', () => {
       // Not load cheerio immediately
     })
 
-    test.todo('should load cheerio on first $ access', () => {
+    it.todo('should load cheerio on first $ access', () => {
       // Load cheerio on first $ access
     })
 
-    test.todo('should cache cheerio instance', () => {
+    it.todo('should cache cheerio instance', () => {
       // Cache cheerio instance
     })
 
-    test.todo('should return same instance on subsequent accesses', () => {
+    it.todo('should return same instance on subsequent accesses', () => {
       // Return same instance on subsequent accesses
     })
   })
@@ -434,99 +434,99 @@ describe('executeFetchMechanism', () => {
 
 describe('executeBrowserMechanism', () => {
   describe('browser initialization', () => {
-    test.todo('should get browser instance', () => {
+    it.todo('should get browser instance', () => {
       // Get browser instance
     })
 
-    test.todo('should use engine from config', () => {
+    it.todo('should use engine from config', () => {
       // Use engine from config
     })
 
-    test.todo('should use default engine when not specified', () => {
+    it.todo('should use default engine when not specified', () => {
       // Use default engine when not specified
     })
 
-    test.todo('should create browser context with options', () => {
+    it.todo('should create browser context with options', () => {
       // Create browser context with options
     })
 
-    test.todo('should create page from context', () => {
+    it.todo('should create page from context', () => {
       // Create page from context
     })
   })
 
   describe('navigation', () => {
-    test.todo('should navigate to url', () => {
+    it.todo('should navigate to url', () => {
       // Navigate to url
     })
 
-    test.todo('should wait for waitUntil condition', () => {
+    it.todo('should wait for waitUntil condition', () => {
       // Wait for waitUntil condition
     })
 
-    test.todo('should apply timeout from options', () => {
+    it.todo('should apply timeout from options', () => {
       // Apply timeout from options
     })
 
-    test.todo('should return response from navigation', () => {
+    it.todo('should return response from navigation', () => {
       // Return response from navigation
     })
 
-    test.todo('should throw error when navigation fails', () => {
+    it.todo('should throw error when navigation fails', () => {
       // Throw error when navigation fails
     })
   })
 
   describe('validation', () => {
-    test.todo('should validate response when validator provided', () => {
+    it.todo('should validate response when validator provided', () => {
       // Validate response when validator provided
     })
 
-    test.todo('should pass mechanism and response to validator', () => {
+    it.todo('should pass mechanism and response to validator', () => {
       // Pass mechanism and response to validator
     })
 
-    test.todo('should throw error when validation fails', () => {
+    it.todo('should throw error when validation fails', () => {
       // Throw error when validation fails
     })
 
-    test.todo('should skip validation when validator not provided', () => {
+    it.todo('should skip validation when validator not provided', () => {
       // Skip validation when validator not provided
     })
   })
 
   describe('cleanup', () => {
-    test.todo('should return cleanup function', () => {
+    it.todo('should return cleanup function', () => {
       // Return cleanup function
     })
 
-    test.todo('should close context on cleanup', () => {
+    it.todo('should close context on cleanup', () => {
       // Close context on cleanup
     })
 
-    test.todo('should close context on error', () => {
+    it.todo('should close context on error', () => {
       // Close context on error
     })
 
-    test.todo('should not throw error if cleanup fails', () => {
+    it.todo('should not throw error if cleanup fails', () => {
       // Not throw error if cleanup fails
     })
   })
 
   describe('error handling', () => {
-    test.todo('should cleanup context on navigation error', () => {
+    it.todo('should cleanup context on navigation error', () => {
       // Cleanup context on navigation error
     })
 
-    test.todo('should cleanup context on validation error', () => {
+    it.todo('should cleanup context on validation error', () => {
       // Cleanup context on validation error
     })
 
-    test.todo('should cleanup context on page creation error', () => {
+    it.todo('should cleanup context on page creation error', () => {
       // Cleanup context on page creation error
     })
 
-    test.todo('should propagate original error after cleanup', () => {
+    it.todo('should propagate original error after cleanup', () => {
       // Propagate original error after cleanup
     })
   })
@@ -534,7 +534,7 @@ describe('executeBrowserMechanism', () => {
 
 describe('executeCustomMechanism', () => {
   describe('custom fetch function', () => {
-    test('should throw error when custom fetch not provided', () => {
+    it('should throw error when custom fetch not provided', () => {
       const config: ScrapeConfig = {}
       const options: RequestOptions = {}
       const throwing = () => executeCustomMechanism('https://example.com', config, options)
@@ -542,7 +542,7 @@ describe('executeCustomMechanism', () => {
       expect(throwing()).rejects.toThrow('Custom fetch function not provided')
     })
 
-    test('should execute custom fetch function', async () => {
+    it('should execute custom fetch function', async () => {
       const mockFn = mock(async () => ({ data: 'test' }))
       const config: ScrapeConfig = { custom: { fn: mockFn } }
       const options: RequestOptions = {}
@@ -552,7 +552,7 @@ describe('executeCustomMechanism', () => {
       expect(mockFn).toHaveBeenCalledTimes(1)
     })
 
-    test('should pass url to custom fetch', async () => {
+    it('should pass url to custom fetch', async () => {
       let capturedUrl: string | undefined
       const config: ScrapeConfig = {
         custom: {
@@ -569,7 +569,7 @@ describe('executeCustomMechanism', () => {
       expect(capturedUrl).toBe('https://example.com/test')
     })
 
-    test('should pass options to custom fetch', async () => {
+    it('should pass options to custom fetch', async () => {
       let capturedOptions: RequestOptions | undefined
       const config: ScrapeConfig = {
         custom: {
@@ -594,7 +594,7 @@ describe('executeCustomMechanism', () => {
       })
     })
 
-    test('should return custom response', async () => {
+    it('should return custom response', async () => {
       const customResponse = { data: 'test', count: 42 }
       const config: ScrapeConfig = {
         custom: { fn: async () => customResponse },
@@ -606,7 +606,7 @@ describe('executeCustomMechanism', () => {
       expect(result.response).toEqual(customResponse)
     })
 
-    test('should accept false as valid response', async () => {
+    it('should accept false as valid response', async () => {
       const config: ScrapeConfig = {
         custom: { fn: async () => false },
       }
@@ -617,7 +617,7 @@ describe('executeCustomMechanism', () => {
       expect(result.response).toBe(false)
     })
 
-    test('should accept 0 as valid response', async () => {
+    it('should accept 0 as valid response', async () => {
       const config: ScrapeConfig = {
         custom: { fn: async () => 0 },
       }
@@ -628,7 +628,7 @@ describe('executeCustomMechanism', () => {
       expect(result.response).toBe(0)
     })
 
-    test('should accept empty string as valid response', async () => {
+    it('should accept empty string as valid response', async () => {
       const config: ScrapeConfig = {
         custom: { fn: async () => '' },
       }
@@ -641,7 +641,7 @@ describe('executeCustomMechanism', () => {
   })
 
   describe('validation', () => {
-    test('should validate response when validator provided', async () => {
+    it('should validate response when validator provided', async () => {
       const mockValidator = mock(() => true)
       const config: ScrapeConfig = {
         custom: { fn: async () => ({ status: 'ok' }) },
@@ -654,7 +654,7 @@ describe('executeCustomMechanism', () => {
       expect(mockValidator).toHaveBeenCalledTimes(1)
     })
 
-    test('should pass mechanism and response to validator', async () => {
+    it('should pass mechanism and response to validator', async () => {
       let capturedContext: ValidateResponseContext | undefined
       const customResponse = { status: 'ok' }
       const config: ScrapeConfig = {
@@ -674,7 +674,7 @@ describe('executeCustomMechanism', () => {
       expect(capturedContext?.response).toEqual(customResponse)
     })
 
-    test('should throw error when validation fails', () => {
+    it('should throw error when validation fails', () => {
       const config: ScrapeConfig = {
         custom: { fn: async () => ({ status: 'error' }) },
         options: {
@@ -687,7 +687,7 @@ describe('executeCustomMechanism', () => {
       expect(throwing()).rejects.toThrow('Response validation failed')
     })
 
-    test('should skip validation when validator not provided', async () => {
+    it('should skip validation when validator not provided', async () => {
       const config: ScrapeConfig = {
         custom: { fn: async () => ({ data: 'test' }) },
       }
@@ -700,7 +700,7 @@ describe('executeCustomMechanism', () => {
   })
 
   describe('error handling', () => {
-    test('should throw error when response is null', () => {
+    it('should throw error when response is null', () => {
       const config: ScrapeConfig = {
         custom: { fn: () => null },
       }
@@ -710,7 +710,7 @@ describe('executeCustomMechanism', () => {
       expect(throwing()).rejects.toThrow('No response received from custom fetch function')
     })
 
-    test('should throw error when response is undefined', () => {
+    it('should throw error when response is undefined', () => {
       const config: ScrapeConfig = {
         custom: { fn: () => undefined },
       }
@@ -720,7 +720,7 @@ describe('executeCustomMechanism', () => {
       expect(throwing()).rejects.toThrow('No response received from custom fetch function')
     })
 
-    test('should propagate custom fetch errors', () => {
+    it('should propagate custom fetch errors', () => {
       const config: ScrapeConfig = {
         custom: {
           fn: () => {
@@ -734,7 +734,7 @@ describe('executeCustomMechanism', () => {
       expect(throwing()).rejects.toThrow('Custom fetch failed')
     })
 
-    test('should handle validation errors', () => {
+    it('should handle validation errors', () => {
       const config: ScrapeConfig = {
         custom: { fn: () => ({ data: 'test' }) },
         options: {
@@ -753,81 +753,81 @@ describe('executeCustomMechanism', () => {
 
 describe('executeStrategy', () => {
   describe('request options composition', () => {
-    test.todo('should compose request options from strategy and config', () => {
+    it.todo('should compose request options from strategy and config', () => {
       // Compose request options from strategy and config
     })
 
-    test.todo('should select random proxy when useProxy is true', () => {
+    it.todo('should select random proxy when useProxy is true', () => {
       // Select random proxy when useProxy is true
     })
 
-    test.todo('should not include proxy when useProxy is false', () => {
+    it.todo('should not include proxy when useProxy is false', () => {
       // Not include proxy when useProxy is false
     })
 
-    test.todo('should select random user agent from config', () => {
+    it.todo('should select random user agent from config', () => {
       // Select random user agent from config
     })
 
-    test.todo('should select random viewport from config', () => {
+    it.todo('should select random viewport from config', () => {
       // Select random viewport from config
     })
 
-    test.todo('should include headers from config', () => {
+    it.todo('should include headers from config', () => {
       // Include headers from config
     })
 
-    test.todo('should include timeout from config', () => {
+    it.todo('should include timeout from config', () => {
       // Include timeout from config
     })
 
-    test.todo('should handle empty options', () => {
+    it.todo('should handle empty options', () => {
       // Handle empty options
     })
 
-    test.todo('should handle partial options', () => {
+    it.todo('should handle partial options', () => {
       // Handle partial options
     })
   })
 
   describe('retry delegation', () => {
-    test.todo('should delegate to withRetry function', () => {
+    it.todo('should delegate to withRetry function', () => {
       // Delegate to withRetry function
     })
 
-    test.todo('should pass retry config from options', () => {
+    it.todo('should pass retry config from options', () => {
       // Pass retry config from options
     })
 
-    test.todo('should execute request without retry when not configured', () => {
+    it.todo('should execute request without retry when not configured', () => {
       // Execute request without retry when not configured
     })
   })
 
   describe('hooks delegation', () => {
-    test.todo('should pass hooks to withRetry function', () => {
+    it.todo('should pass hooks to withRetry function', () => {
       // Pass hooks to withRetry function
     })
 
-    test.todo('should not pass hooks when not configured', () => {
+    it.todo('should not pass hooks when not configured', () => {
       // Not pass hooks when not configured
     })
   })
 
   describe('mechanism routing', () => {
-    test.todo('should route to executeFetchMechanism for fetch mechanism', () => {
+    it.todo('should route to executeFetchMechanism for fetch mechanism', () => {
       // Route to executeFetchMechanism for fetch mechanism
     })
 
-    test.todo('should route to executeBrowserMechanism for browser mechanism', () => {
+    it.todo('should route to executeBrowserMechanism for browser mechanism', () => {
       // Route to executeBrowserMechanism for browser mechanism
     })
 
-    test.todo('should route to executeCustomMechanism for custom mechanism', () => {
+    it.todo('should route to executeCustomMechanism for custom mechanism', () => {
       // Route to executeCustomMechanism for custom mechanism
     })
 
-    test.todo('should throw error for unknown mechanism', () => {
+    it.todo('should throw error for unknown mechanism', () => {
       // Throw error for unknown mechanism
     })
   })

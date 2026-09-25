@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, describe, expect, test } from 'bun:test'
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'bun:test'
 import { HttpResponse, http } from 'msw'
 import { setupServer } from 'msw/node'
 import { scrapeMany } from './scrapeMany.js'
@@ -40,7 +40,7 @@ describe('scrapeMany', () => {
   afterAll(() => server.close())
 
   describe('basic scraping', () => {
-    test('should scrape multiple URLs sequentially', async () => {
+    it('should scrape multiple URLs sequentially', async () => {
       const urls = [
         'https://example.com/page1',
         'https://example.com/page2',
@@ -56,7 +56,7 @@ describe('scrapeMany', () => {
       expect(result.failed).toBe(0)
     })
 
-    test('should return correct stats for empty URL array', async () => {
+    it('should return correct stats for empty URL array', async () => {
       const result = await scrapeMany([], {
         strategies: [{ mechanism: 'fetch' }],
       })
@@ -66,7 +66,7 @@ describe('scrapeMany', () => {
       expect(result.failed).toBe(0)
     })
 
-    test('should scrape single URL', async () => {
+    it('should scrape single URL', async () => {
       const result = await scrapeMany(['https://example.com/page1'], {
         strategies: [{ mechanism: 'fetch' }],
       })
@@ -78,7 +78,7 @@ describe('scrapeMany', () => {
   })
 
   describe('callbacks', () => {
-    test('should call onSuccess for each successful scrape', async () => {
+    it('should call onSuccess for each successful scrape', async () => {
       const successCalls: Array<{ url: string; index: number }> = []
 
       await scrapeMany(
@@ -98,7 +98,7 @@ describe('scrapeMany', () => {
       expect(successCalls[1].index).toBe(1)
     })
 
-    test('should call onError for failed scrapes', async () => {
+    it('should call onError for failed scrapes', async () => {
       const errorCalls: Array<{ url: string; index: number }> = []
 
       await scrapeMany(
@@ -116,7 +116,7 @@ describe('scrapeMany', () => {
       expect(errorCalls[0].index).toBe(1)
     })
 
-    test('should provide result in onSuccess context', async () => {
+    it('should provide result in onSuccess context', async () => {
       let capturedTitle: string | undefined
 
       await scrapeMany(
@@ -134,7 +134,7 @@ describe('scrapeMany', () => {
       expect(capturedTitle).toBe('Page 1')
     })
 
-    test('should provide stats in callback context', async () => {
+    it('should provide stats in callback context', async () => {
       const statsSnapshots: Array<{
         initial: number
         processed: number
@@ -165,7 +165,7 @@ describe('scrapeMany', () => {
   })
 
   describe('error handling', () => {
-    test('should continue scraping after errors', async () => {
+    it('should continue scraping after errors', async () => {
       const result = await scrapeMany(
         ['https://example.com/page1', 'https://example.com/error', 'https://example.com/page2'],
         { strategies: [{ mechanism: 'fetch' }] },
@@ -176,7 +176,7 @@ describe('scrapeMany', () => {
       expect(result.failed).toBe(1)
     })
 
-    test('should track multiple failures', async () => {
+    it('should track multiple failures', async () => {
       const result = await scrapeMany(
         ['https://example.com/error', 'https://example.com/error2', 'https://example.com/page1'],
         { strategies: [{ mechanism: 'fetch' }] },
@@ -188,7 +188,7 @@ describe('scrapeMany', () => {
   })
 
   describe('delays', () => {
-    test('should apply delays between requests', async () => {
+    it('should apply delays between requests', async () => {
       const timestamps: Array<number> = []
 
       await scrapeMany(
@@ -207,7 +207,7 @@ describe('scrapeMany', () => {
       expect(delay).toBeLessThan(250) // Allow some overhead
     })
 
-    test('should not apply delay after last URL', async () => {
+    it('should not apply delay after last URL', async () => {
       const startTime = Date.now()
 
       await scrapeMany(
@@ -225,7 +225,7 @@ describe('scrapeMany', () => {
   })
 
   describe('dynamic URL discovery', () => {
-    test('should add URLs dynamically via addUrls', async () => {
+    it('should add URLs dynamically via addUrls', async () => {
       server.use(
         http.get('https://example.com/discover', () => {
           return new HttpResponse(
@@ -263,7 +263,7 @@ describe('scrapeMany', () => {
       expect(processedUrls).toContain('https://example.com/page1')
     })
 
-    test('should deduplicate URLs automatically', async () => {
+    it('should deduplicate URLs automatically', async () => {
       const processedUrls: Array<string> = []
 
       await scrapeMany(
@@ -281,7 +281,7 @@ describe('scrapeMany', () => {
       expect(processedUrls).toHaveLength(1)
     })
 
-    test('should accept single URL string in addUrls', async () => {
+    it('should accept single URL string in addUrls', async () => {
       const processedUrls: Array<string> = []
 
       await scrapeMany(
