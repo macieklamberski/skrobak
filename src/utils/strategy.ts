@@ -1,5 +1,5 @@
 import { type CheerioAPI, load } from 'cheerio'
-import { sleep } from 'trousse'
+import { sleep, t } from 'trousse'
 import defaults from '../defaults.json' with { type: 'json' }
 import locales from '../locales.json' with { type: 'json' }
 import type { BrowserEngine } from '../types/browser.js'
@@ -112,14 +112,14 @@ const executeFetchMechanism = async <TCustomResponse = unknown>(
   const response = await fetch(url, fetchOptions)
 
   if (!response) {
-    throw new Error(locales.noResponseReceived)
+    throw new Error(locales.errors.noResponseReceived)
   }
 
   if (
     config.options?.validateResponse &&
     !config.options.validateResponse({ mechanism: 'fetch', response })
   ) {
-    throw new Error(locales.responseValidationFailed)
+    throw new Error(locales.errors.responseValidationFailed)
   }
 
   const html = await response.clone().text()
@@ -156,14 +156,14 @@ const executeBrowserMechanism = async <TCustomResponse = unknown>(
     })
 
     if (!response) {
-      throw new Error(locales.noResponseReceived)
+      throw new Error(locales.errors.noResponseReceived)
     }
 
     if (
       config.options?.validateResponse &&
       !config.options.validateResponse({ mechanism: 'browser', response })
     ) {
-      throw new Error(locales.responseValidationFailed)
+      throw new Error(locales.errors.responseValidationFailed)
     }
 
     return {
@@ -184,20 +184,20 @@ export const executeCustomMechanism = async <TCustomResponse = unknown>(
   options: RequestOptions,
 ): Promise<ScrapeResultCustom<TCustomResponse>> => {
   if (!config.custom?.fn) {
-    throw new Error(locales.customFetchNotProvided)
+    throw new Error(locales.errors.customFetchNotProvided)
   }
 
   const response = await config.custom.fn(url, options)
 
   if (response === null || response === undefined) {
-    throw new Error(locales.customFetchNoResponse)
+    throw new Error(locales.errors.customFetchNoResponse)
   }
 
   if (
     config.options?.validateResponse &&
     !config.options.validateResponse({ mechanism: 'custom', response })
   ) {
-    throw new Error(locales.responseValidationFailed)
+    throw new Error(locales.errors.responseValidationFailed)
   }
 
   return { mechanism: 'custom', response }
@@ -234,7 +234,7 @@ const executeMechanism = async <TCustomResponse = unknown>(
       await result.cleanup()
     }
 
-    throw new HttpError(`HTTP error ${status}`, status)
+    throw new HttpError(t(locales.errors.httpError, { status }), status)
   }
 
   return result

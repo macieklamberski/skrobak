@@ -1,11 +1,14 @@
 {
-  "customFetchNotProvided": "Custom fetch function not provided",
-  "customFetchNoResponse": "No response received from custom fetch function",
-  "fetchNotImplemented": "Default fetch mechanism not implemented yet",
-  "noResponseReceived": "No response received from navigation",
-  "responseValidationFailed": "Response validation failed",
-  "failedAfterRetries": "Failed to fetch after all retries",
-  "allStrategiesFailed": "All strategies failed",
-  "noStrategiesProvided": "No strategies provided in configuration",
-  "browserConfigRequired": "Browser config is required for browser strategy"
+  "errors": {
+    "customFetchNotProvided": "Custom fetch function not provided",
+    "customFetchNoResponse": "No response received from custom fetch function",
+    "fetchNotImplemented": "Default fetch mechanism not implemented yet",
+    "noResponseReceived": "No response received from navigation",
+    "responseValidationFailed": "Response validation failed",
+    "failedAfterRetries": "Failed to fetch after all retries",
+    "allStrategiesFailed": "All strategies failed",
+    "noStrategiesProvided": "No strategies provided in configuration",
+    "browserConfigRequired": "Browser config is required for browser strategy",
+    "httpError": "HTTP error {{status}}"
+  }
 }
