@@ -311,10 +311,11 @@ describe('scrape', () => {
     })
 
     it('should throw error when custom fetch function not provided', () => {
-      const throwing = () =>
-        scrape('https://example.com/no-fn', {
+      const throwing = () => {
+        return scrape('https://example.com/no-fn', {
           strategies: [{ mechanism: 'custom' }],
         })
+      }
 
       expect(throwing()).rejects.toThrow('Custom fetch function not provided')
     })
@@ -342,8 +343,8 @@ describe('scrape', () => {
     })
 
     it('should fail validation when custom response is invalid', () => {
-      const throwing = () =>
-        scrape('https://example.com/invalid', {
+      const throwing = () => {
+        return scrape('https://example.com/invalid', {
           strategies: [{ mechanism: 'custom' }],
           options: {
             validateResponse: (context) => {
@@ -360,6 +361,7 @@ describe('scrape', () => {
             },
           },
         })
+      }
 
       expect(throwing()).rejects.toThrow('Response validation failed')
     })
@@ -606,8 +608,8 @@ describe('scrape', () => {
           }),
         )
 
-        const throwing = () =>
-          scrape('https://example.com/blocked', {
+        const throwing = () => {
+          return scrape('https://example.com/blocked', {
             options: {
               validateResponse: (context) => {
                 if (context.mechanism === 'fetch') {
@@ -619,6 +621,7 @@ describe('scrape', () => {
             },
             strategies: [{ mechanism: 'fetch' }],
           })
+        }
 
         expect(throwing()).rejects.toThrow('Response validation failed')
       })
@@ -630,8 +633,8 @@ describe('scrape', () => {
         })
 
         try {
-          const throwing = () =>
-            scrape(server.url.href, {
+          const throwing = () => {
+            return scrape(server.url.href, {
               options: {
                 validateResponse: (context) => {
                   if (context.mechanism === 'browser') {
@@ -643,6 +646,7 @@ describe('scrape', () => {
               },
               strategies: [{ mechanism: 'browser', useProxy: false }],
             })
+          }
 
           await expect(throwing()).rejects.toThrow('Response validation failed')
         } finally {
@@ -745,11 +749,12 @@ describe('scrape', () => {
         }),
       )
 
-      const throwing = () =>
-        scrape('https://example.com/slow', {
+      const throwing = () => {
+        return scrape('https://example.com/slow', {
           options: { timeout: 50 },
           strategies: [{ mechanism: 'fetch' }],
         })
+      }
 
       expect(throwing()).rejects.toThrow()
     })

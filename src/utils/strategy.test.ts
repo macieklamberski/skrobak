@@ -595,7 +595,10 @@ describe('executeCustomMechanism', () => {
     })
 
     it('should return custom response', async () => {
-      const customResponse = { data: 'test', count: 42 }
+      const customResponse = {
+        data: 'test',
+        count: 42,
+      }
       const config: ScrapeConfig = {
         custom: { fn: async () => customResponse },
       }
