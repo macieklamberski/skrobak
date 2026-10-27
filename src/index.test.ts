@@ -563,6 +563,39 @@ describe('scrape', () => {
 
         expect(result.mechanism).toBe('custom')
       })
+
+      it('should validate browser response with custom function', async () => {
+        const server = Bun.serve({
+          port: 0,
+          fetch: () => new Response('<html><body>ok</body></html>', { status: 200 }),
+        })
+
+        try {
+          const result = await scrape(server.url.href, {
+            options: {
+              validateResponse: (context) => {
+                if (context.mechanism === 'browser') {
+                  return context.response.status() === 200
+                }
+
+                return false
+              },
+            },
+            strategies: [{ mechanism: 'browser', useProxy: false }],
+          })
+
+          expect(result.mechanism).toBe('browser')
+
+          if (result.mechanism !== 'browser') {
+            throw new Error('Expected a browser result')
+          }
+
+          await result.cleanup()
+        } finally {
+          await closeAllBrowsers()
+          await server.stop(true)
+        }
+      })
     })
 
     describe('validation failure', () => {
@@ -588,6 +621,34 @@ describe('scrape', () => {
           })
 
         expect(throwing()).rejects.toThrow('Response validation failed')
+      })
+
+      it('should fail when custom validation returns false for browser response', async () => {
+        const server = Bun.serve({
+          port: 0,
+          fetch: () => new Response('blocked', { status: 403 }),
+        })
+
+        try {
+          const throwing = () =>
+            scrape(server.url.href, {
+              options: {
+                validateResponse: (context) => {
+                  if (context.mechanism === 'browser') {
+                    return context.response.status() === 200
+                  }
+
+                  return true
+                },
+              },
+              strategies: [{ mechanism: 'browser', useProxy: false }],
+            })
+
+          expect(throwing()).rejects.toThrow('Response validation failed')
+        } finally {
+          await closeAllBrowsers()
+          await server.stop(true)
+        }
       })
 
       it.todo('should continue to next strategy on validation failure (integration test)', () => {
