@@ -21,7 +21,7 @@ export const scrape = async <TCustomResponse = unknown>(
   const strategies = config.strategies
 
   if (!strategies?.length) {
-    throw new Error(locales.noStrategiesProvided)
+    throw new Error(locales.errors.noStrategiesProvided)
   }
 
   for (const [index, strategy] of strategies.entries()) {
@@ -51,5 +51,5 @@ export const scrape = async <TCustomResponse = unknown>(
     }
   }
 
-  throw new Error(locales.allStrategiesFailed)
+  throw new Error(locales.errors.allStrategiesFailed)
 }
