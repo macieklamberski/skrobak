@@ -239,11 +239,11 @@ describe('withRetry', () => {
   })
 
   describe('error handling', () => {
-    it('should retry on any error', () => {
+    it('should retry on any error', async () => {
       const fn = mock(() => Promise.reject('string error'))
       const throwing = () => withRetry(fn, { count: 1, delay: 1 })
 
-      expect(throwing()).rejects.toBe('string error')
+      await expect(throwing()).rejects.toBe('string error')
       expect(fn).toHaveBeenCalledTimes(2)
     })
 
@@ -276,35 +276,35 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(3)
     })
 
-    it('should NOT retry on HttpError with non-retriable status code', () => {
+    it('should NOT retry on HttpError with non-retriable status code', async () => {
       const fn = mock(() => {
         throw new HttpError('HTTP 404', 404)
       })
 
       const throwing = () => withRetry(fn, { count: 3, delay: 1, statusCodes: [503, 500] })
 
-      expect(throwing()).rejects.toThrow('HTTP 404')
+      await expect(throwing()).rejects.toThrow('HTTP 404')
       expect(fn).toHaveBeenCalledTimes(1)
     })
 
-    it('should use default status codes when not specified', () => {
+    it('should use default status codes when not specified', async () => {
       const fn = mock(() => {
         throw new HttpError('HTTP 500', 500)
       })
 
       const throwing = () => withRetry(fn, { count: 2, delay: 1 })
 
-      expect(throwing()).rejects.toThrow('HTTP 500')
+      await expect(throwing()).rejects.toThrow('HTTP 500')
       // Should retry because 500 is in default retriable status codes
       expect(fn).toHaveBeenCalledTimes(3)
     })
 
-    it('should retry non-HttpError errors regardless of status codes', () => {
+    it('should retry non-HttpError errors regardless of status codes', async () => {
       const fn = mock(() => Promise.reject(new Error('Network error')))
 
       const throwing = () => withRetry(fn, { count: 2, delay: 1, statusCodes: [503] })
 
-      expect(throwing()).rejects.toThrow('Network error')
+      await expect(throwing()).rejects.toThrow('Network error')
       // Should retry even though error doesn't have status code
       expect(fn).toHaveBeenCalledTimes(3)
     })
@@ -328,7 +328,7 @@ describe('withRetry', () => {
       expect(fn).toHaveBeenCalledTimes(3)
     })
 
-    it('should stop immediately on first non-retriable status code', () => {
+    it('should stop immediately on first non-retriable status code', async () => {
       let attempt = 0
       const fn = mock(() => {
         attempt++
@@ -340,7 +340,7 @@ describe('withRetry', () => {
 
       const throwing = () => withRetry(fn, { count: 5, delay: 1, statusCodes: [503] })
 
-      expect(throwing()).rejects.toThrow('HTTP 401')
+      await expect(throwing()).rejects.toThrow('HTTP 401')
       expect(fn).toHaveBeenCalledTimes(2)
     })
   })

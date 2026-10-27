@@ -644,7 +644,7 @@ describe('scrape', () => {
               strategies: [{ mechanism: 'browser', useProxy: false }],
             })
 
-          expect(throwing()).rejects.toThrow('Response validation failed')
+          await expect(throwing()).rejects.toThrow('Response validation failed')
         } finally {
           await closeAllBrowsers()
           await server.stop(true)
@@ -871,7 +871,7 @@ describe('scrape', () => {
           const throwing = () =>
             scrape(server.url.href, { strategies: [{ mechanism: 'browser', useProxy: false }] })
 
-          expect(throwing()).rejects.toThrow(HttpError)
+          await expect(throwing()).rejects.toThrow(HttpError)
           expect(browser.contexts()).toHaveLength(0)
         } finally {
           await closeAllBrowsers()
