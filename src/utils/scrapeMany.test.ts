@@ -1,6 +1,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'bun:test'
 import { HttpResponse, http } from 'msw'
 import { setupServer } from 'msw/node'
+import { isPresent } from 'trousse'
 import { scrapeMany } from './scrapeMany.js'
 
 describe('scrapeMany', () => {
@@ -249,7 +250,7 @@ describe('scrapeMany', () => {
                 .$('a')
                 .map((_, el) => result.$(el).attr('href'))
                 .get()
-                .filter((href): href is string => typeof href === 'string')
+                .filter(isPresent)
 
               addUrls(links)
             }

@@ -1,3 +1,4 @@
+import type { MaybePromise } from 'trousse'
 import type { ScrapeResult } from './result.js'
 
 export type ScrapeManyStats = {
@@ -26,8 +27,8 @@ export type ScrapeManyErrorContext = {
 }
 
 export type ScrapeManyConfig<TCustomResponse = unknown> = {
-  onSuccess?: (context: ScrapeManySuccessContext<TCustomResponse>) => void | Promise<void>
-  onError?: (context: ScrapeManyErrorContext) => void | Promise<void>
+  onSuccess?: (context: ScrapeManySuccessContext<TCustomResponse>) => MaybePromise<void>
+  onError?: (context: ScrapeManyErrorContext) => MaybePromise<void>
   delays?: { min: number; max: number }
 }
 

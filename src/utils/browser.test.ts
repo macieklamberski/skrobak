@@ -69,8 +69,6 @@ describe('createContext', () => {
     }
 
     const context = await createContext(browser, options)
-    const _page = await context.newPage()
-
     // Note: Stealth plugin may override the user agent, so we just verify context was created
     expect(context).toBeDefined()
   })
