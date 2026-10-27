@@ -51,7 +51,8 @@
     "playwright": "^1.63.0",
     "playwright-extra": "^4.3.6",
     "trousse": "^2.2.1",
-    "tsdown": "^0.23.0"
+    "tsdown": "^0.23.2",
+    "typescript": "7.1.0-beta"
   },
   "patchedDependencies": {
     "puppeteer-extra-plugin-stealth@2.11.2": "patches/puppeteer-extra-plugin-stealth@2.11.2.patch"
