@@ -67,10 +67,8 @@ export const withRetry = async <T>(
     } catch (error) {
       lastError = error
 
-      if (error instanceof HttpError) {
-        if (!retriableStatusCodes.includes(error.statusCode)) {
-          throw error
-        }
+      if (error instanceof HttpError && !retriableStatusCodes.includes(error.statusCode)) {
+        throw error
       }
 
       if (attempt < retryConfig.count) {
@@ -117,10 +115,11 @@ const executeFetchMechanism = async <TCustomResponse = unknown>(
     throw new Error(locales.noResponseReceived)
   }
 
-  if (config.options?.validateResponse) {
-    if (!config.options.validateResponse({ mechanism: 'fetch', response })) {
-      throw new Error(locales.responseValidationFailed)
-    }
+  if (
+    config.options?.validateResponse &&
+    !config.options.validateResponse({ mechanism: 'fetch', response })
+  ) {
+    throw new Error(locales.responseValidationFailed)
   }
 
   const html = await response.clone().text()
@@ -160,10 +159,11 @@ const executeBrowserMechanism = async <TCustomResponse = unknown>(
       throw new Error(locales.noResponseReceived)
     }
 
-    if (config.options?.validateResponse) {
-      if (!config.options.validateResponse({ mechanism: 'browser', response })) {
-        throw new Error(locales.responseValidationFailed)
-      }
+    if (
+      config.options?.validateResponse &&
+      !config.options.validateResponse({ mechanism: 'browser', response })
+    ) {
+      throw new Error(locales.responseValidationFailed)
     }
 
     return {
@@ -193,10 +193,11 @@ export const executeCustomMechanism = async <TCustomResponse = unknown>(
     throw new Error(locales.customFetchNoResponse)
   }
 
-  if (config.options?.validateResponse) {
-    if (!config.options.validateResponse({ mechanism: 'custom', response })) {
-      throw new Error(locales.responseValidationFailed)
-    }
+  if (
+    config.options?.validateResponse &&
+    !config.options.validateResponse({ mechanism: 'custom', response })
+  ) {
+    throw new Error(locales.responseValidationFailed)
   }
 
   return { mechanism: 'custom', response }

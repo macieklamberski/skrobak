@@ -1,4 +1,5 @@
 import type { ViewportSize } from 'playwright'
+import type { MaybePromise } from 'trousse'
 import type { BrowserConfig } from './browser.js'
 import type { ScrapeHooks } from './hooks.js'
 import type { ScrapeOptions } from './options.js'
@@ -14,7 +15,7 @@ export type RequestOptions = {
 export type CustomFetchFn<TCustomResponse = unknown> = (
   url: string,
   options: RequestOptions,
-) => TCustomResponse | Promise<TCustomResponse>
+) => MaybePromise<TCustomResponse>
 
 export type CustomConfig<TCustomResponse = unknown> = {
   fn: CustomFetchFn<TCustomResponse>

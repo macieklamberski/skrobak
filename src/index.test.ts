@@ -77,8 +77,8 @@ describe('scrape', () => {
           throw new Error('Expected a fetch result')
         }
 
-        const data = await result.response.json()
-        expect(data).toEqual({ data: 'test' })
+        const value = await result.response.json()
+        expect(value).toEqual({ data: 'test' })
       })
 
       it('should successfully parse HTML with Cheerio', async () => {
@@ -415,8 +415,8 @@ describe('scrape', () => {
           throw new Error('Expected a fetch result')
         }
 
-        const data = await result.response.json()
-        expect(data.from).toBe('fetch')
+        const value = await result.response.json()
+        expect(value.from).toBe('fetch')
       })
 
       it.todo('should use second strategy when first fails', () => {
