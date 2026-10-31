@@ -1,3 +1,4 @@
+import { coerceArray } from 'trousse'
 import { scrape } from '../index.js'
 import type { ScrapeConfig } from '../types/index.js'
 import type { ScrapeManyConfig, ScrapeManyResult, ScrapeManyStats } from '../types/scrapeMany.js'
@@ -19,7 +20,7 @@ export const scrapeMany = async <TCustomResponse = unknown>(
 
   const createAddUrls = () => {
     return (newUrls: string | Array<string>): void => {
-      const urlArray = Array.isArray(newUrls) ? newUrls : [newUrls]
+      const urlArray = coerceArray(newUrls)
 
       for (const url of urlArray) {
         if (processed.has(url) || queue.has(url)) {

@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'bun:test'
 import { HttpResponse, http } from 'msw'
+import { sleep } from 'trousse'
 import { HttpError, type RequestOptions, scrape } from './index.js'
 import { closeAllBrowsers, getBrowser } from './utils/browser.js'
 import { setupNetwork } from './utils/mocks.js'
@@ -744,7 +745,7 @@ describe('scrape', () => {
     it('should timeout when request takes too long', () => {
       server.use(
         http.get('https://example.com/slow', async () => {
-          await new Promise((resolve) => setTimeout(resolve, 200))
+          await sleep(200)
           return HttpResponse.json({ data: 'test' })
         }),
       )
