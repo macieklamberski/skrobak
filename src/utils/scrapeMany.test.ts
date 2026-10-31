@@ -1,11 +1,11 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'bun:test'
 import { HttpResponse, http } from 'msw'
-import { setupServer } from 'msw/node'
 import { isPresent } from 'trousse'
+import { setupNetwork } from './mocks.js'
 import { scrapeMany } from './scrapeMany.js'
 
 describe('scrapeMany', () => {
-  const server = setupServer(
+  const server = setupNetwork(
     http.get('https://example.com/page1', () => {
       return new HttpResponse(
         '<html><head><title>Page 1</title></head><body><h1>Page 1</h1></body></html>',
@@ -36,9 +36,9 @@ describe('scrapeMany', () => {
     }),
   )
 
-  beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+  beforeAll(() => server.enable())
   afterEach(() => server.resetHandlers())
-  afterAll(() => server.close())
+  afterAll(() => server.disable())
 
   describe('basic scraping', () => {
     it('should scrape multiple URLs sequentially', async () => {

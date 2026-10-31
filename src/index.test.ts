@@ -1,11 +1,11 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'bun:test'
 import { HttpResponse, http } from 'msw'
-import { setupServer } from 'msw/node'
 import { HttpError, type RequestOptions, scrape } from './index.js'
 import { closeAllBrowsers, getBrowser } from './utils/browser.js'
+import { setupNetwork } from './utils/mocks.js'
 
 describe('scrape', () => {
-  const server = setupServer(
+  const server = setupNetwork(
     http.get('https://example.com/api', () => {
       return HttpResponse.json({ data: 'test' })
     }),
@@ -18,9 +18,9 @@ describe('scrape', () => {
     }),
   )
 
-  beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+  beforeAll(() => server.enable())
   afterEach(() => server.resetHandlers())
-  afterAll(() => server.close())
+  afterAll(() => server.disable())
 
   describe('input validation', () => {
     it.todo('should throw error when url is empty string', () => {

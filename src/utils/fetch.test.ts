@@ -1,9 +1,9 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, spyOn } from 'bun:test'
 import { HttpResponse, http } from 'msw'
-import { setupServer } from 'msw/node'
 import { scrape } from '../index.js'
 import type { FetchOptions } from '../types/fetch.js'
 import { composeFetchOptions, isBunRuntime } from './fetch.js'
+import { setupNetwork } from './mocks.js'
 
 describe('isBunRuntime', () => {
   describe('runtime detection', () => {
@@ -133,11 +133,11 @@ describe('composeFetchOptions', () => {
   })
 
   describe('integration with fetch strategy', () => {
-    const server = setupServer()
+    const server = setupNetwork()
 
-    beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+    beforeAll(() => server.enable())
     afterEach(() => server.resetHandlers())
-    afterAll(() => server.close())
+    afterAll(() => server.disable())
 
     it('should configure proxy when useProxy is true', async () => {
       server.use(
