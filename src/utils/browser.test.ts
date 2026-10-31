@@ -132,6 +132,14 @@ describe('createContext', () => {
       })
     })
 
+    it('should keep a stray percent sign in credentials as written', () => {
+      expect(parseProxy('http://user:pa%ss%40@proxy.com:8080')).toEqual({
+        server: 'http://proxy.com:8080',
+        username: 'user',
+        password: 'pa%ss@',
+      })
+    })
+
     it('should handle proxy with username only', () => {
       expect(parseProxy('http://user@proxy.com:8080')).toEqual({
         server: 'http://proxy.com:8080',

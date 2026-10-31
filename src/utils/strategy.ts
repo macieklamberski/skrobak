@@ -1,5 +1,5 @@
 import { type CheerioAPI, load } from 'cheerio'
-import { sleep, t } from 'trousse'
+import { isPresent, sleep, t } from 'trousse'
 import defaults from '../defaults.json' with { type: 'json' }
 import locales from '../locales.json' with { type: 'json' }
 import type { BrowserEngine } from '../types/browser.js'
@@ -189,7 +189,7 @@ export const executeCustomMechanism = async <TCustomResponse = unknown>(
 
   const response = await config.custom.fn(url, options)
 
-  if (response === null || response === undefined) {
+  if (!isPresent(response)) {
     throw new Error(locales.errors.customFetchNoResponse)
   }
 

@@ -1,6 +1,7 @@
 import type { Browser, BrowserContext, BrowserContextOptions, BrowserType, Page } from 'playwright'
 import { chromium, firefox, type PlaywrightExtraClass, webkit } from 'playwright-extra'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
+import { decodePercent } from 'trousse'
 import type { BrowserConfig, BrowserEngine, ResourceType } from '../types/browser.js'
 import type { RequestOptions } from '../types/index.js'
 
@@ -59,8 +60,8 @@ export const parseProxy = (proxy: string): BrowserContextOptions['proxy'] => {
 
     return {
       server: `${protocol}//${host}`,
-      username: decodeURIComponent(username),
-      password: decodeURIComponent(password),
+      username: decodePercent(username),
+      password: decodePercent(password),
     }
   } catch {
     return { server: proxy }
