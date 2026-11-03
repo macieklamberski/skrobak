@@ -240,10 +240,10 @@ describe('withRetry', () => {
 
   describe('error handling', () => {
     it('should retry on any error', async () => {
-      const fn = mock(() => Promise.reject('string error'))
+      const fn = mock(() => Promise.reject(new Error('generic error')))
       const throwing = () => withRetry(fn, { count: 1, delay: 1 })
 
-      await expect(throwing()).rejects.toBe('string error')
+      await expect(throwing()).rejects.toThrow('generic error')
       expect(fn).toHaveBeenCalledTimes(2)
     })
 
