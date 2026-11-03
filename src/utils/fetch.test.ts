@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, spyOn } from 'bun:test'
 import { HttpResponse, http } from 'msw'
+import { ProxyAgent } from 'undici'
 import { scrape } from '../index.js'
 import type { FetchOptions } from '../types/fetch.js'
 import { composeFetchOptions, isBunRuntime } from './fetch.js'
@@ -91,8 +92,7 @@ describe('composeFetchOptions', () => {
       const proxyUrl = 'http://proxy.example.com:8080'
       const options = composeFetchOptions(headers, undefined, proxyUrl)
 
-      expect(options.dispatcher).toBeDefined()
-      expect(options.dispatcher?.constructor.name).toBe('ProxyAgent')
+      expect(options.dispatcher).toBeInstanceOf(ProxyAgent)
     })
 
     it('should not set proxy property in Node', () => {
