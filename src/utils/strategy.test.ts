@@ -86,9 +86,9 @@ describe('calculateRetryDelay', () => {
     })
 
     it('should handle unknown retry type (fallback to exponential)', () => {
-      // @ts-expect-error Testing invalid retry type
+      // @ts-expect-error: This is for testing purposes.
       expect(calculateRetryDelay(2, 1000, 'unknown')).toBe(4000)
-      // @ts-expect-error Testing invalid retry type
+      // @ts-expect-error: This is for testing purposes.
       expect(calculateRetryDelay(3, 500, 'invalid')).toBe(4000)
     })
   })
