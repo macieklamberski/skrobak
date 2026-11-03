@@ -1,6 +1,6 @@
 import type { Browser, BrowserContext, BrowserContextOptions, BrowserType, Page } from 'playwright'
 import { chromium, firefox, type PlaywrightExtraClass, webkit } from 'playwright-extra'
-import StealthPlugin from 'puppeteer-extra-plugin-stealth'
+import stealthPlugin from 'puppeteer-extra-plugin-stealth'
 import { decodePercent } from 'trousse'
 import type { BrowserConfig, BrowserEngine, ResourceType } from '../types/browser.js'
 import type { RequestOptions } from '../types/index.js'
@@ -28,7 +28,7 @@ export const getBrowser = async (engine: BrowserEngine): Promise<Browser> => {
       break
   }
 
-  browserEngine.use(StealthPlugin())
+  browserEngine.use(stealthPlugin())
 
   const newBrowser = await browserEngine.launch({
     args: [
