@@ -11,7 +11,7 @@ describe('getBrowser', () => {
   it('should create and return a chromium browser', async () => {
     const browser = await getBrowser('chromium')
 
-    expect(browser).toBeDefined()
+    expect(browser.browserType().name()).toBe('chromium')
     expect(browser.isConnected()).toBe(true)
   })
 
@@ -60,7 +60,7 @@ describe('createContext', () => {
   it('should create context without options', async () => {
     const context = await createContext(browser, {})
 
-    expect(context).toBeDefined()
+    expect(context.browser()).toBe(browser)
   })
 
   it('should create context with user agent', async () => {
@@ -70,7 +70,7 @@ describe('createContext', () => {
 
     const context = await createContext(browser, options)
     // Note: Stealth plugin may override the user agent, so we just verify context was created
-    expect(context).toBeDefined()
+    expect(context.browser()).toBe(browser)
   })
 
   it('should create context with viewport settings', async () => {
@@ -108,7 +108,7 @@ describe('createContext', () => {
   it('should create context with empty options object', async () => {
     const context = await createContext(browser, {})
 
-    expect(context).toBeDefined()
+    expect(context.browser()).toBe(browser)
   })
 
   describe('proxy configuration', () => {
