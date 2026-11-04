@@ -6,5 +6,6 @@
     "moduleResolution": "nodenext",
     "skipLibCheck": true,
     "types": ["bun"]
-  }
+  },
+  "exclude": ["node_modules", "_plans"]
 }
