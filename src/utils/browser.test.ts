@@ -11,7 +11,8 @@ describe('getBrowser', () => {
   it('should create and return a chromium browser', async () => {
     const browser = await getBrowser('chromium')
 
-    expect(browser.browserType().name()).toBe('chromium')
+    const browserName = browser.browserType().name()
+    expect(browserName).toBe('chromium')
     expect(browser.isConnected()).toBe(true)
   })
 
