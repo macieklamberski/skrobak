@@ -1,7 +1,7 @@
 import type { Browser, BrowserContext, BrowserContextOptions, BrowserType, Page } from 'playwright'
 import { chromium, firefox, type PlaywrightExtraClass, webkit } from 'playwright-extra'
 import stealthPlugin from 'puppeteer-extra-plugin-stealth'
-import { decodePercent } from 'trousse'
+import { decodePercent, parseUrl } from 'trousse'
 import type { BrowserConfig, BrowserEngine, ResourceType } from '../types/browser.js'
 import type { RequestOptions } from '../types/index.js'
 
@@ -51,20 +51,16 @@ export const getBrowser = async (engine: BrowserEngine): Promise<Browser> => {
 // Chromium ignores credentials embedded in the proxy URL and answers with 407, which surfaces as a
 // navigation timeout. They have to be passed as separate fields instead.
 export const parseProxy = (proxy: string): BrowserContextOptions['proxy'] => {
-  try {
-    const { protocol, host, username, password } = new URL(proxy)
+  const proxyUrl = parseUrl(proxy)
 
-    if (!username && !password) {
-      return { server: proxy }
-    }
-
-    return {
-      server: `${protocol}//${host}`,
-      username: decodePercent(username),
-      password: decodePercent(password),
-    }
-  } catch {
+  if (!proxyUrl || (!proxyUrl.username && !proxyUrl.password)) {
     return { server: proxy }
+  }
+
+  return {
+    server: `${proxyUrl.protocol}//${proxyUrl.host}`,
+    username: decodePercent(proxyUrl.username),
+    password: decodePercent(proxyUrl.password),
   }
 }
 
